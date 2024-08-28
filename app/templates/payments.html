@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>결제 시스템 테스트</title>
+</head>
+<body>
+    <h1>결제 시스템 테스트</h1>
+    <form id="payment-form">
+        <label for="payment_method">결제 방법 선택:</label>
+        <select id="payment_method" name="payment_method">
+            <option value="paypal">PayPal</option>
+            <option value="toss">Toss Payments</option>
+        </select>
+        <br><br>
+
+        <h2>Item 정보</h2>
+        <p>Name: Sample Item</p>
+        <p>Price: 10</p>
+        <p>Quantity: 1</p>
+
+        <!-- 결제하기 버튼-->
+        <button id="pay-btn" type="button">구매하기</button>
+    </form>
+    
+    <script src="https://js.tosspayments.com/v1/payment"></script>
+    <script>
+        document.getElementById('pay-btn').addEventListener('click', function() {
+            const paymentMethod = document.getElementById('payment_method').value;
+
+            if (paymentMethod === 'toss') {
+                // 서버로부터 결제 정보를 받아옴
+                fetch('/payments/payment/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        payment_method: paymentMethod  // 결제 방법만 서버로 보냄
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Received data from server:', data);  // 받은 데이터를 확인
+
+                    if (data.amount && data.orderId && data.orderName && data.customerName) {
+                        // Toss Payments 클라이언트 키 사용
+                        const clientKey = 'test_ck_nRQoOaPz8Llq9Bp5lbEj8y47BMw6';  // Toss에서 발급받은 클라이언트 키
+                        const tossPayments = TossPayments(clientKey);
+                                                
+                        // 결제창 열기
+                        tossPayments.requestPayment("카드", {
+                            amount: data.amount,
+                            orderId: data.orderId,
+                            orderName: data.orderName,
+                            customerName: data.customerName,
+                            successUrl: window.location.origin + '/success',
+                            failUrl: window.location.origin + '/fail',
+                        });
+
+                    } else {
+                        alert('Failed to receive payment information.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('There was a problem with the payment request.');
+                });
+            } else if (paymentMethod === 'paypal') {
+                // PayPal 결제 처리
+                fetch('/payments/payment/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        payment_method: paymentMethod  // 결제 방법만 서버로 보냄
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Received data from server (PayPal):', data);
+
+                    if (data.approval_url) {
+                        window.location.href = data.approval_url;  // PayPal 승인 URL로 이동
+                    } else {
+                        alert('Payment error: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('There was a problem with the payment request.');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
