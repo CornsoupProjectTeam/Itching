@@ -1,6 +1,10 @@
-Flask
-Flask-SQLAlchemy
-Flask-PyMongo
-Flask-Cors
-mysqlclient
-pymongo
+Flask>=2.0.0
+flask-cors>=3.0.0
+Flask-SQLAlchemy>=2.5.0
+Flask-PyMongo>=2.3.0
+mysqlclient>=2.0.3
+pymongo>=4.0.0
+python-dotenv>=0.19.0
+requests>=2.25.1
+paypal-checkout-serversdk
+uuid

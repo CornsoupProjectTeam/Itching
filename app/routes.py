@@ -1,5 +1,7 @@
-from flask import Flask, jsonify, send_from_directory
+from flask import Flask, jsonify, send_from_directory, render_template, request
 from app import app
+import os
+from app.blueprints.payments import payments_bp
 
 # API 엔드포인트 예시
 @app.route('/api/data', methods=['GET'])
@@ -20,3 +22,20 @@ def serve_react_app(path):
         return send_from_directory(app.static_folder, path)
     else:
         return send_from_directory(app.static_folder, 'index.html')
+    
+# 결제 페이지
+@payments_bp.route('/payment', methods=['GET'])
+def payment_page():
+    return render_template('payments.html')
+
+# 결제 성공 라우트
+@payments_bp.route('/payment/success', methods=['GET'])
+def payment_success():
+    # 결제가 성공한 경우 성공 메시지를 전달
+    return render_template('paymentResult.html', message="Payment was successful!")
+
+# 결제 실패 라우트
+@payments_bp.route('/payment/fail', methods=['GET'])
+def payment_fail():
+    # 결제가 실패한 경우 실패 메시지를 전달
+    return render_template('paymentResult.html', message="Payment failed. Please try again.")
