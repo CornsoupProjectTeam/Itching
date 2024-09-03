@@ -80,3 +80,15 @@ def payment_execute():
 
     else:
         return jsonify({"error": "Invalid payment method"}), 400
+
+@payments_bp.route('/payment', methods=['GET'])
+def payment_page():
+    return render_template('payments.html')
+
+@payments_bp.route('/payment/success', methods=['GET'])
+def payment_success():
+    return render_template('paymentResult.html', message="Payment was successful!")
+
+@payments_bp.route('/payment/fail', methods=['GET'])
+def payment_fail():
+    return render_template('paymentResult.html', message="Payment failed. Please try again.")
