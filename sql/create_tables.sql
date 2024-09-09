@@ -1,9 +1,4 @@
 -- sql/create_tables.sql
--- 데이터베이스 생성
-CREATE DATABASE itching;
-
--- 데이터베이스 이동
-USE itching;
 
 -- 로그인
 CREATE TABLE LOGIN (
