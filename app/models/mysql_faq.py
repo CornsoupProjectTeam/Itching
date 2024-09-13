@@ -6,7 +6,7 @@ from datetime import datetime
 db = SQLAlchemy()
 
 class FAQ(db.Model):
-    __tablename__ = 'faq'
+    __tablename__ = 'FAQ'
 
     faq_id = db.Column(db.String(20), primary_key=True)
     category_faq = db.Column(db.String(255), nullable=False)

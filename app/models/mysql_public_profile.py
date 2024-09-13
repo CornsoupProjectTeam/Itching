@@ -6,10 +6,10 @@ from datetime import datetime
 db = SQLAlchemy()
 
 class PublicProfile(db.Model):
-    __tablename__ = 'public_profile'
+    __tablename__ = 'PUBLIC_PROFILE'
 
     public_profile_id = db.Column(db.String(30), primary_key=True)
-    freelancer_user_id = db.Column(db.String(20), db.ForeignKey('login.user_id'), nullable=False)
+    freelancer_user_id = db.Column(db.String(20), db.ForeignKey('LOGIN.user_id'), nullable=False)
     profile_image_path = db.Column(db.String(255), nullable=True)
     nickname = db.Column(db.String(20), nullable=False)
     matching_count = db.Column(db.Integer, default=0)
@@ -24,7 +24,7 @@ class PublicProfile(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    freelancer = db.relationship('Login', backref='public_profiles')
+    freelancer = db.relationship('LOGIN', backref='public_profiles')
 
     def __repr__(self):
         return self.public_profile_id
