@@ -1,13 +1,20 @@
 # mysql_user_consent.py
 
-from django.db import models
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
-class UserConsent(models.Model):
-    user_id = models.OneToOneField('Login', on_delete=models.CASCADE, primary_key=True)
-    personal_info_consent = models.BooleanField()
-    terms_of_service_consent = models.BooleanField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+db = SQLAlchemy()
 
-    def __str__(self):
+class UserConsent(db.Model):
+    __tablename__ = 'user_consent'
+
+    user_id = db.Column(db.String(20), db.ForeignKey('login.user_id'), primary_key=True)
+    personal_info_consent = db.Column(db.Boolean, nullable=False)
+    terms_of_service_consent = db.Column(db.Boolean, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = db.relationship('Login', backref='user_consent')
+
+    def __repr__(self):
         return self.user_id

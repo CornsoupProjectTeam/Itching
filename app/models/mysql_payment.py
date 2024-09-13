@@ -1,19 +1,28 @@
 # mysql_payment.py
 
-from django.db import models
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
-class Payment(models.Model):
-    chat_room_id = models.OneToOneField('ChatRoomMaster', on_delete=models.CASCADE, primary_key=True)
-    quotation_id = models.CharField(max_length=50)
-    freelancer_user_id = models.ForeignKey('Login', on_delete=models.CASCADE, related_name='freelancer_payments')
-    client_user_id = models.ForeignKey('Login', on_delete=models.CASCADE, related_name='client_payments')
-    user_name = models.CharField(max_length=100, blank=True, null=True)
-    project_title = models.CharField(max_length=200, blank=True, null=True)
-    price_unit = models.CharField(max_length=5, blank=True, null=True)
-    payment_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    payment_st = models.CharField(max_length=50, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+db = SQLAlchemy()
 
-    def __str__(self):
+class Payment(db.Model):
+    __tablename__ = 'payment'
+
+    chat_room_id = db.Column(db.String(50), db.ForeignKey('chat_room_master.chat_room_id'), primary_key=True)
+    quotation_id = db.Column(db.String(50), nullable=False)
+    freelancer_user_id = db.Column(db.String(20), db.ForeignKey('login.user_id'), nullable=False)
+    client_user_id = db.Column(db.String(20), db.ForeignKey('login.user_id'), nullable=False)
+    user_name = db.Column(db.String(100), nullable=True)
+    project_title = db.Column(db.String(200), nullable=True)
+    price_unit = db.Column(db.String(5), nullable=True)
+    payment_amount = db.Column(db.Numeric(10, 2), nullable=False)
+    payment_st = db.Column(db.String(50), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    freelancer = db.relationship('Login', foreign_keys=[freelancer_user_id], backref='freelancer_payments')
+    client = db.relationship('Login', foreign_keys=[client_user_id], backref='client_payments')
+    chat_room = db.relationship('ChatRoomMaster', backref='payment')
+
+    def __repr__(self):
         return self.chat_room_id

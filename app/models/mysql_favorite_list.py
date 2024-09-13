@@ -1,14 +1,22 @@
 # mysql_favorite_list.py
 
-from django.db import models
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
-class FavoriteList(models.Model):
-    favorite_list_id = models.CharField(max_length=50, primary_key=True)
-    user_id = models.ForeignKey('Login', on_delete=models.CASCADE, related_name='favorites')
-    author_id = models.ForeignKey('Login', on_delete=models.CASCADE, related_name='favorite_authors')
-    favorite_post_id = models.CharField(max_length=50, blank=True, null=True)
-    category = models.CharField(max_length=100, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+db = SQLAlchemy()
 
-    def __str__(self):
+class FavoriteList(db.Model):
+    __tablename__ = 'favorite_list'
+
+    favorite_list_id = db.Column(db.String(50), primary_key=True)
+    user_id = db.Column(db.String(20), db.ForeignKey('login.user_id'), nullable=False)
+    author_id = db.Column(db.String(20), db.ForeignKey('login.user_id'), nullable=False)
+    favorite_post_id = db.Column(db.String(50), nullable=True)
+    category = db.Column(db.String(100), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('Login', foreign_keys=[user_id], backref='favorites')
+    author = db.relationship('Login', foreign_keys=[author_id], backref='favorite_authors')
+
+    def __repr__(self):
         return self.favorite_list_id
