@@ -1,16 +1,23 @@
 # mysql_client_post_list.py
 
-from django.db import models
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
-class ClientPostList(models.Model):
-    client_post_id = models.CharField(max_length=50, primary_key=True)
-    client_user_id = models.ForeignKey('Login', on_delete=models.CASCADE)
-    client_title = models.CharField(max_length=200, blank=True, null=True)
-    client_payment_amount = models.IntegerField(blank=True, null=True)
-    desired_deadline = models.DateField(blank=True, null=True)
-    final_deadline = models.DateField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+db = SQLAlchemy()
 
-    def __str__(self):
-        return self.client_post_id
+class ClientPostList(db.Model):
+    __tablename__ = 'client_post_list'
+
+    client_post_id = db.Column(db.String(50), primary_key=True)
+    client_user_id = db.Column(db.String(20), db.ForeignKey('login.user_id'), nullable=False)
+    client_title = db.Column(db.String(200), nullable=True)
+    client_payment_amount = db.Column(db.Integer, nullable=True)
+    desired_deadline = db.Column(db.Date, nullable=True)
+    final_deadline = db.Column(db.Date, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    client = db.relationship('Login', backref='client_posts')
+
+    def __repr__(self):
+        return f'<ClientPostList {self.client_post_id}>'

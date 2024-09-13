@@ -1,14 +1,19 @@
 # mysql_login.py
 
-from django.db import models
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
-class Login(models.Model):
-    user_id = models.CharField(max_length=20, primary_key=True)
-    provider_id = models.CharField(max_length=255, blank=True, null=True)
-    password = models.CharField(max_length=255)
-    is_active = models.BooleanField(default=True)
-    create_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+db = SQLAlchemy()
 
-    def __str__(self):
+class Login(db.Model):
+    __tablename__ = 'login'
+
+    user_id = db.Column(db.String(20), primary_key=True)
+    provider_id = db.Column(db.String(255), nullable=True)
+    password = db.Column(db.String(255), nullable=False)
+    is_active = db.Column(db.Boolean, default=True)
+    create_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def __repr__(self):
         return self.user_id

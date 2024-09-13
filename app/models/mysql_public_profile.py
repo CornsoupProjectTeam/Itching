@@ -1,23 +1,30 @@
 # mysql_public_profile.py
 
-from django.db import models
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
-class PublicProfile(models.Model):
-    public_profile_id = models.CharField(max_length=30, primary_key=True)
-    freelancer_user_id = models.ForeignKey('Login', on_delete=models.CASCADE)
-    profile_image_path = models.CharField(max_length=255, blank=True, null=True)
-    nickname = models.CharField(max_length=20)
-    matching_count = models.IntegerField(default=0)
-    service_option = models.TextField(blank=True, null=True)
-    avg_response_time = models.IntegerField(blank=True, null=True)
-    price_unit = models.CharField(max_length=5, blank=True, null=True)
-    payment_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    specialization = models.CharField(max_length=255, blank=True, null=True)
-    avg_rating = models.DecimalField(max_digits=3, decimal_places=1, blank=True, null=True)
-    freelancer_badge = models.CharField(max_length=10, blank=True, null=True)
-    registered_at = models.DateTimeField(auto_now_add=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+db = SQLAlchemy()
 
-    def __str__(self):
+class PublicProfile(db.Model):
+    __tablename__ = 'public_profile'
+
+    public_profile_id = db.Column(db.String(30), primary_key=True)
+    freelancer_user_id = db.Column(db.String(20), db.ForeignKey('login.user_id'), nullable=False)
+    profile_image_path = db.Column(db.String(255), nullable=True)
+    nickname = db.Column(db.String(20), nullable=False)
+    matching_count = db.Column(db.Integer, default=0)
+    service_option = db.Column(db.Text, nullable=True)
+    avg_response_time = db.Column(db.Integer, nullable=True)
+    price_unit = db.Column(db.String(5), nullable=True)
+    payment_amount = db.Column(db.Numeric(10, 2), nullable=False)
+    specialization = db.Column(db.String(255), nullable=True)
+    avg_rating = db.Column(db.Numeric(3, 1), nullable=True)
+    freelancer_badge = db.Column(db.String(10), nullable=True)
+    registered_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    freelancer = db.relationship('Login', backref='public_profiles')
+
+    def __repr__(self):
         return self.public_profile_id

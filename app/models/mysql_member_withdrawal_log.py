@@ -1,11 +1,18 @@
 # mysql_member_withdrawal_log.py
 
-from django.db import models
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
-class MemberWithdrawalLog(models.Model):
-    user_id = models.OneToOneField('Login', on_delete=models.CASCADE, primary_key=True)
-    reason = models.CharField(max_length=255, blank=True, null=True)
-    withdrawal_date = models.DateTimeField(auto_now_add=True)
+db = SQLAlchemy()
 
-    def __str__(self):
+class MemberWithdrawalLog(db.Model):
+    __tablename__ = 'member_withdrawal_log'
+
+    user_id = db.Column(db.String(20), db.ForeignKey('login.user_id'), primary_key=True)
+    reason = db.Column(db.String(255), nullable=True)
+    withdrawal_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('Login', backref='withdrawal_log')
+
+    def __repr__(self):
         return self.user_id

@@ -1,14 +1,19 @@
 # mysql_faq.py
 
-from django.db import models
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
-class FAQ(models.Model):
-    faq_id = models.CharField(max_length=20, primary_key=True)
-    category_faq = models.CharField(max_length=255)
-    question = models.TextField()
-    answer = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+db = SQLAlchemy()
 
-    def __str__(self):
+class FAQ(db.Model):
+    __tablename__ = 'faq'
+
+    faq_id = db.Column(db.String(20), primary_key=True)
+    category_faq = db.Column(db.String(255), nullable=False)
+    question = db.Column(db.Text, nullable=False)
+    answer = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def __repr__(self):
         return self.faq_id

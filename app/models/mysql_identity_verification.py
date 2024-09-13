@@ -1,15 +1,22 @@
 # mysql_identity_verification.py
 
-from django.db import models
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
-class IdentityVerification(models.Model):
-    user_id = models.OneToOneField('Login', on_delete=models.CASCADE, primary_key=True)
-    verification_status = models.BooleanField()
-    phone_number = models.CharField(max_length=20)
-    verification_code = models.CharField(max_length=6)
-    expiration_time = models.DateTimeField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+db = SQLAlchemy()
 
-    def __str__(self):
+class IdentityVerification(db.Model):
+    __tablename__ = 'identity_verification'
+
+    user_id = db.Column(db.String(20), db.ForeignKey('login.user_id'), primary_key=True)
+    verification_status = db.Column(db.Boolean, nullable=False)
+    phone_number = db.Column(db.String(20), nullable=False)
+    verification_code = db.Column(db.String(6), nullable=False)
+    expiration_time = db.Column(db.DateTime, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = db.relationship('Login', backref='identity_verification')
+
+    def __repr__(self):
         return self.user_id
