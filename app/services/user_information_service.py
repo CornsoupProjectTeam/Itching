@@ -21,11 +21,11 @@ class UserInformationService:
             self.is_duplicate_checked = False  # 중복 체크 상태 저장
 
         def validate_nickname(self, new_nickname):
-            # 닉네임 규칙 검사
+            # 도메인 계층에서 닉네임 규칙 검증
             is_valid = self.user_information_domain.check_nickname(new_nickname)
 
-            if not is_valid:  # 닉네임 규칙에 맞지 않으면 False 반환
-                return {"success": False, "message": "닉네임 규칙에 어긋납니다. 소문자+숫자 조합으로 다시 시도해보세요"}
+            if not is_valid:
+                return {"success": False, "message": "닉네임은 소문자와 숫자 조합이며 20자 이하여야 합니다."}
 
             # 닉네임 규칙 검사가 성공한 경우에만 중복 검사 수행
             if self.user_information_repository.check_nickname_duplication(new_nickname):
@@ -34,7 +34,7 @@ class UserInformationService:
 
             # 중복 체크 성공
             self.is_duplicate_checked = True  # 중복 확인 성공
-            return {"success": True, "message": "등록 가능한 닉네임 입니다."}
+            return {"success": True, "message": "등록 가능한 닉네임입니다."}
 
         def save_new_nickname(self, user_id, new_nickname):
             # 중복 체크가 성공했는지 확인
