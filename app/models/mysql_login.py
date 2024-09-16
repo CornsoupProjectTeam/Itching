@@ -12,7 +12,7 @@ class Login(db.Model):
     provider_id = db.Column(db.String(255), nullable=True)
     password = db.Column(db.String(255), nullable=False)
     is_active = db.Column(db.Boolean, default=True)
-    create_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def __repr__(self):

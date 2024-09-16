@@ -10,8 +10,8 @@ class ProjectInfo(Document):
     image_path_mapping = ListField(StringField())  # 이미지 경로 리스트
     project_title = StringField(required=True)  # 프로젝트 제목
     project_payment_amount = IntField(required=True)  # 프로젝트 비용
-    revision_count = IntField(required=True)  # 수정 횟수
-    additional_revision_available = BooleanField(default=False)  # 추가 수정 가능 여부
+    design_draft_count = IntField(required=True)  # 시안 개수
+    additional_design_draft_available = BooleanField(default=False)  # 시안 추가 구매 가능 여부
     production_time = StringField(required=True)  # 제작 기간
     commercial_use_allowed = BooleanField(default=False)  # 상업적 사용 허용 여부
     high_resolution_file_available = BooleanField(default=False)  # 고해상도 파일 제공 여부

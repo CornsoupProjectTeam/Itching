@@ -33,7 +33,7 @@ class PublicProfile(Document):
     rate_unit = StringField()  # 요금 단위
     preferred_work_style_mapping = ListField(StringField())  # 선호하는 작업 스타일 리스트
     account_info = DictField()  # 계좌 정보 (은행명, 계좌 번호)
-    expert_badge = StringField()  # 전문가 배지 (gold, silver 등)
+    freelancer_badge = StringField()  # 전문가 배지 (gold, silver 등)
     match_count = IntField()  # 매칭 수
     average_response_time = StringField()  # 평균 응답 시간
     freelancer_registration_date = StringField()  # 프리랜서 등록 날짜
