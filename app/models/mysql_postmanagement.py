@@ -13,7 +13,6 @@ class PostManagement(db.Model):
     category = db.Column(db.String(100), nullable=False)
     reference_post_id = db.Column(db.String(50), nullable=True)
     project_title = db.Column(db.String(255), nullable=False)
-    project_or_client_id = db.Column(db.String(50), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

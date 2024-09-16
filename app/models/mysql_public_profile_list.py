@@ -1,12 +1,12 @@
-# mysql_public_profile.py
+# mysql_public_profile_list.py
 
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
 db = SQLAlchemy()
 
-class PublicProfile(db.Model):
-    __tablename__ = 'PUBLIC_PROFILE'
+class PublicProfileList(db.Model):
+    __tablename__ = 'PUBLIC_PROFILE_LIST'
 
     public_profile_id = db.Column(db.String(30), primary_key=True)
     freelancer_user_id = db.Column(db.String(20), db.ForeignKey('LOGIN.user_id'), nullable=False)
