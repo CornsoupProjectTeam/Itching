@@ -9,6 +9,7 @@ class UserProfile:
     nickname: Optional[str] = None
     business_area: Optional[str] = None
     interest_area_mapping: Optional[dict] = None
+    profile_picture_path: Optional[str] = None
 
     def update_nickname(self, new_nickname):
         self.nickname = new_nickname
@@ -19,6 +20,8 @@ class UserProfile:
     def update_interest_area(self, new_interest_data):
         self.interest_area_mapping = new_interest_data
 
+    def update_profile_picture_path(self, new_path):
+        self.profile_picture_path = new_path 
 
 class UserInformationDomain:
     

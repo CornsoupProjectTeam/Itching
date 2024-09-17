@@ -1,4 +1,5 @@
 from app.domain.user_information_domain import UserInformationDomain
+from app.utils.image_upload import upload_image, delete_image
 
 class UserInformationService:
     def __init__(self, user_information_repository, user_id):
@@ -109,3 +110,39 @@ class UserInformationService:
                 return {"success": True, "message": "관심사 정보가 성공적으로 업데이트되었습니다."}
             else:
                 return {"success": False, "message": "관심사 정보 업데이트에 실패하였습니다."}
+            
+    class ChangeProfilePicture:
+        def __init__(self, user_information_domain, user_information_repository):
+            self.user_information_domain = user_information_domain
+            self.user_information_repository = user_information_repository
+
+        def upload_profile_picture(self, user_id, file):
+            filename, error = upload_image(file, user_id)
+            
+            if error:
+                return {"success": False, "message": error}
+            
+            if self.user_information_repository.save_profile_picture_path(user_id, filename):
+                # 도메인 객체의 profile_picture_path 업데이트
+                self.user_information_domain.user_profile.save_profile_picture_path(filename)
+                return {"success": True, "message": "프로필 사진이 성공적으로 업로드되었습니다."}
+            else:
+                return {"success": False, "message": "프로필 사진 경로 업데이트에 실패하였습니다."}
+
+        def delete_profile_picture(self, user_id):
+            current_picture_path = self.user_information_repository.get_profile_picture_path(user_id)
+            
+            if not current_picture_path:
+                return {"success": False, "message": "삭제할 프로필 사진이 없습니다."}
+
+            success, error = delete_image(user_id, current_picture_path)
+            
+            if not success:
+                return {"success": False, "message": error}
+
+            if self.user_information_repository.save_profile_picture_path(user_id, None):
+                # 도메인 객체의 profile_picture_path 업데이트
+                self.user_information_domain.user_profile.save_profile_picture_path(None)
+                return {"success": True, "message": "프로필 사진이 성공적으로 삭제되었습니다."}
+            else:
+                return {"success": False, "message": "프로필 사진 경로 삭제에 실패하였습니다."}

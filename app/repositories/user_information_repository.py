@@ -1,4 +1,6 @@
 #user_information_repository
+from flask import current_app
+import os
 from mongoengine import DoesNotExist
 from models.mongodb_user_information import UserProfile
 
@@ -20,7 +22,7 @@ class UserInformationRepository:
         # 주어진 닉네임이 중복되는지 확인
         return UserProfile.objects(nickname=nickname).count() > 0
 
-    def update_freelancer_registration(self, user_id: str, status: bool) -> bool:
+    def save_freelancer_registration(self, user_id: str, status: str) -> bool:
         # 주어진 user_id의 프리랜서 등록 상태를 업데이트
         user_profile = self.find_by_user_id(user_id)
         if user_profile:
@@ -81,3 +83,20 @@ class UserInformationRepository:
             user_profile.update(interest_area_mapping=new_interest_data)
             return True
         return False
+    
+    def save_profile_picture_path(self, user_id: str, filename: str) -> bool:
+        # 유틸 함수의 create_user_folder와 일관된 경로 계산
+        upload_folder = current_app.config.get('UPLOAD_FOLDER')
+        filepath = os.path.join(upload_folder, str(user_id), filename)
+        
+        # 프로필 사진 경로를 업데이트
+        user_profile = self.get_user_profile_by_user_id(user_id)
+        if user_profile:
+            user_profile.update(profile_picture_path=filepath)
+            return True
+        return False
+
+    def get_profile_picture_path(self, user_id: str):
+        # 사용자의 현재 프로필 사진 경로를 가져오는 메서드
+        user_profile = self.get_user_profile_by_user_id(user_id)
+        return user_profile.profile_picture_path if user_profile else None
