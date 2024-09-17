@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Submission Success</title>
+</head>
+<body>
+    <h1>Submission Successful!</h1>
+    
+    <h2>Submitted Information</h2>
+    <p><strong>Estimate ID:</strong> {{ data.estimate_id }}</p>
+    <p><strong>Participants:</strong> {{ ', '.join(data.participants) }}</p>
+    <p><strong>Estimate Status:</strong> {{ data.estimate_status }}</p>
+
+    <h3>Requirements</h3>
+    <ul>
+        {% for requirement in data.requirements_mapping %}
+        <li>Step {{ requirement.sequence }}: {{ requirement.requirement }}</li>
+        {% endfor %}
+    </ul>
+
+    <p><strong>Estimate:</strong> {{ data.estimate }}</p>
+    <p><strong>Number of Drafts:</strong> {{ data.number_of_drafts }}</p>
+    <p><strong>Midterm Check:</strong> {{ data.notification_dates.midterm_check }}</p>
+    <p><strong>Final Deadline:</strong> {{ data.notification_dates.final_deadline }}</p>
+    <p><strong>Revision Count:</strong> {{ data.revision_count }}</p>
+    <p><strong>Additional Revision Purchase Available:</strong> {{ data.additional_revision_purchase_available }}</p>
+    <p><strong>Commercial Use Allowed:</strong> {{ data.commercial_use_allowed }}</p>
+    <p><strong>High Resolution File Available:</strong> {{ data.high_resolution_file_available }}</p>
+    <p><strong>Delivery Method:</strong> {{ data.delivery_method }}</p>
+
+    <h3>If the information above is correct, click below to confirm.</h3>
+    <form action="/" method="GET">
+        <button type="submit">Confirm</button>
+    </form>
+</body>
+</html>
