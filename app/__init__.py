@@ -7,6 +7,10 @@ from flask_pymongo import PyMongo
 # Flask 애플리케이션 생성
 app = Flask(__name__, static_folder="../frontend/build")
 
+app_dir = os.path.dirname(os.path.abspath(__file__))
+# app 디렉터리 내에 있는 'uploaded_images' 폴더를 UPLOAD_FOLDER로 설정
+app.config['UPLOAD_FOLDER'] = os.path.join(app_dir, 'uploaded_images')
+
 # 루트 디렉터리의 config.py에서 설정 가져오기
 app.config.from_object('config.DevelopmentConfig')
 
