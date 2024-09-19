@@ -63,7 +63,7 @@ class UserProfile(Document):
     preferred_freelancer_type_mapping = EmbeddedDocumentField(PreferredFreelancerType)
     
     inquiry_status = BooleanField(default=False)
-    freelancer_registration_status = BooleanField(default=False)
+    freelancer_registration_status = StringField(max_length=20, required=True)
     
     created_at = DateTimeField(default=datetime.datetime.utcnow)
     updated_at = DateTimeField(default=datetime.datetime.utcnow)
