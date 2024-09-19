@@ -22,40 +22,40 @@ user_data = {
         "Logo Design": False
     },
     "preferred_freelancer_type_mapping": {
-        "Available on Weekends": True,
-        "Not Available on Weekends": False,
-        "Logo Specialist": {
-            "Wordmark": False,
-            "Symbol": True,
-            "Symbol + Wordmark": True,
-            "Calligraphy": False,
-            "Character": False,
-            "Emblem": False
+        "available_on_weekends": True,  # 필드명 수정
+        "not_available_on_weekends": False,  # 필드명 수정
+        "logo_specialist": {  # 필드명 수정
+            "wordmark": False,  # 필드명 수정
+            "symbol": True,  # 필드명 수정
+            "symbol_wordmark": True,  # 필드명 수정
+            "calligraphy": False,
+            "character": False,
+            "emblem": False
         },
-        "Thumbnail Specialist": {
-            "Platform": {
+        "thumbnail_specialist": {  # 필드명 수정
+            "platform": {
                 "YouTube": True,
                 "Facebook": False,
                 "KakaoStory": False,
                 "Instagram": True,
                 "Blog": False
             },
-            "Design Style": {
+            "design_style": {  # 필드명 수정
                 "Photo": True,
                 "Text": False,
                 "Illustration": True
             }
         },
-        "Mood Type": {
-            "Luxurious": False,
-            "Delicate": True,
-            "Simple": True,
-            "Cute": False,
-            "Warm": True,
-            "Smart": False,
-            "Trendy": False,
-            "Emotional": False,
-            "Classic": False
+        "mood_type": {  # 필드명 수정
+            "luxurious": False,
+            "delicate": True,
+            "simple": True,
+            "cute": False,
+            "warm": True,
+            "smart": False,
+            "trendy": False,
+            "emotional": False,
+            "classic": False
         }
     },
     "inquiry_status": True,
@@ -63,6 +63,7 @@ user_data = {
     "created_at": datetime.utcnow(),  # 현재 시간으로 생성
     "updated_at": datetime.utcnow()  # 현재 시간으로 업데이트
 }
+
 
 # 데이터 삽입
 result = collection.insert_one(user_data)
