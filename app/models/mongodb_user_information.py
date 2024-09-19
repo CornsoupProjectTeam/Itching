@@ -47,8 +47,8 @@ class PreferredFreelancerType(EmbeddedDocument):
     thumbnail_specialist = EmbeddedDocumentField(ThumbnailSpecialist)
     mood_type = EmbeddedDocumentField(MoodType)
 
-# 메인 UserProfile 모델 정의
-class UserProfile(Document):
+# 메인 UserInformation 모델 정의
+class UserInformation(Document):
     user_id = StringField(max_length=20, required=True, unique=True)
     email = StringField(max_length=50, required=True)
     profile_picture_path = StringField(max_length=255)
