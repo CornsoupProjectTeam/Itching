@@ -9,7 +9,7 @@ class ProjectList(db.Model):
     __tablename__ = 'PROJECT_LIST'
 
     project_id = db.Column(db.String(50), primary_key=True)
-    public_profile_id = db.Column(db.String(30), db.ForeignKey('PUBLIC_PROFILE.public_profile_id'), nullable=False)
+    public_profile_id = db.Column(db.String(30), nullable=False)
     freelancer_user_id = db.Column(db.String(20), db.ForeignKey('LOGIN.user_id'), nullable=False)
     project_title = db.Column(db.String(200), nullable=False)
     field = db.Column(db.String(100), nullable=True)
