@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from mongoengine import connect
 
 # .env 파일 로드
 load_dotenv()
@@ -11,6 +12,7 @@ class Config:
 
     # MongoDB 설정
     MONGO_URI = os.getenv('MONGO_URI')
+    connect(host=MONGO_URI, alias='default')
 
     # Flask Secret Key (세션 관리, CSRF 방지 등)
     # SECRET_KEY = os.getenv('SECRET_KEY')
