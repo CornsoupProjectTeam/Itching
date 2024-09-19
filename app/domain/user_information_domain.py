@@ -1,32 +1,18 @@
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
+from datetime import datetime
 
 @dataclass
-class UserProfile:
+class UserInformationDomain:
     user_id: str
     email: Optional[str] = None
     nickname: Optional[str] = None
     business_area: Optional[str] = None
     interest_area_mapping: Optional[dict] = None
     profile_picture_path: Optional[str] = None
-
-    def update_nickname(self, new_nickname):
-        self.nickname = new_nickname
-
-    def update_business_area(self, new_business_area):
-        self.business_area = new_business_area
-
-    def update_interest_area(self, new_interest_data):
-        self.interest_area_mapping = new_interest_data
-
-    def update_profile_picture_path(self, new_path):
-        self.profile_picture_path = new_path 
-
-class UserInformationDomain:
-    
-    def __init__(self, user_profile: UserProfile):
-        self.user_profile = user_profile
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     def check_nickname(self, new_nickname: str):
         # 닉네임이 영어 소문자와 숫자로만 이루어졌는지 확인하는 정규 표현식
@@ -42,3 +28,15 @@ class UserInformationDomain:
 
         # 닉네임 규칙이 통과된 경우
         return {"success": True, "message": "닉네임이 유효합니다."}
+
+    def update_nickname(self, new_nickname: str):
+        self.nickname = new_nickname
+
+    def update_business_area(self, new_business_area: str):
+        self.business_area = new_business_area
+
+    def update_interest_area(self, new_interest_data: dict):
+        self.interest_area_mapping = new_interest_data
+
+    def update_profile_picture_path(self, new_path: str):
+        self.profile_picture_path = new_path
