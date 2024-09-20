@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Room Quotation Form</title>
+</head>
+<body>
+    <h1>Chat Room Quotation Form</h1>
+    <form action="/" method="POST">
+        <!-- 견적 -->
+        <label for="estimate_id">Estimate ID:</label>
+        <input type="text" name="estimate_id" required><br>
+
+        <!-- 참여자 -->
+        <label for="participants">Participants:</label>
+        <input type="text" name="participants"><br>
+
+        <!-- 상태 선택 (estimate_status 추가) -->
+        <label for="estimate_status">Estimate Status:</label>
+        <select name="estimate_status" required>
+            <option value="drafting">Drafting</option>
+            <option value="reviewing">Reviewing</option>
+            <option value="approved">Approved</option>
+        </select><br>
+
+        <!-- 시안 개수 -->
+        <label for="number_of_drafts">Number of Drafts:</label>
+        <select name="number_of_drafts">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+        </select><br>
+
+        <!-- 제작 마감일 -->
+        <label for="final_deadline">Final Deadline (yyyy.mm.dd):</label>
+        <input type="text" name="final_deadline" required><br>
+
+        <!-- 중간 컨펌날 -->
+        <label for="midterm_check">Midterm Check (yyyy.mm.dd):</label>
+        <input type="text" name="midterm_check" required><br>
+
+        <!-- 수정 횟수 -->
+        <label for="revision_count">Revision Count:</label>
+        <input type="number" name="revision_count" required><br>
+
+        <!-- 견적 입력 필드 (estimate) 추가 -->
+        <label for="estimate">Estimate:</label>
+        <input type="number" name="estimate" required><br>
+
+        <!-- 시안 추가 구매 가능 여부 -->
+        <label for="additional_revision_purchase_available">Additional Revision Purchase Available:</label>
+        <input type="checkbox" name="additional_revision_purchase_available"><br>
+
+        <!-- 상업적 이용 가능 여부 -->
+        <label for="commercial_use_allowed">Commercial Use Allowed:</label>
+        <input type="checkbox" name="commercial_use_allowed"><br>
+
+        <!-- 고해상도 파일 제공 가능 여부 -->
+        <label for="high_resolution_file_available">High Resolution File Available:</label>
+        <input type="checkbox" name="high_resolution_file_available"><br>
+
+        <!-- 제공 루트 -->
+        <label for="delivery_method">Delivery Method:</label>
+        <input type="text" name="delivery_method" required><br>
+
+        <!-- 전송 버튼 -->
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>

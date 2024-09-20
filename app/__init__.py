@@ -3,6 +3,7 @@ from flask import Flask
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_pymongo import PyMongo
+from flask.json import JSONEncoder as BaseJSONEncoder
 
 # Flask 애플리케이션 생성
 app = Flask(__name__, static_folder="../frontend/build")
@@ -33,6 +34,11 @@ from app.blueprints.payments import payments_bp
 
 # 외부 블루프린트 등록
 app.register_blueprint(payments_bp, url_prefix='/payments')
+
+# Blueprint 등록 - 견적서
+from app.routes.chat_routes import chat_bp
+app.register_blueprint(chat_bp)
+
 
 # 라우트 초기화 (routes/routes.py에서 초기화)
 from app.routes.routes import init_routes
