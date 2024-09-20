@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ chat_room.chat_room_id }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .messages {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: scroll;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            margin-bottom: 10px;
+        }
+
+        .message strong {
+            color: #007BFF;
+        }
+
+        .input-container {
+            display: flex;
+        }
+
+        .message-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .send-button {
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .send-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>채팅방: {{ chat_room.chat_room_id }}</h1>
+    <div class="messages" id="messageList">
+        {% for msg in messages %}
+        <div class="message">
+            <strong>{{ msg.sender_id }}:</strong> {{ msg.content }}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="input-container">
+        <input type="text" id="messageInput" class="message-input" placeholder="메시지를 입력하세요...">
+        <button class="send-button" onclick="sendMessage()">전송</button>
+    </div>
+
+    <script>
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value;
+            const senderId = 'user1';  // 현재 로그인한 사용자 ID로 설정해야 함
+
+            fetch(`/chat_room/{{ chat_room.chat_room_id }}/message`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ sender_id: senderId, content: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // 메시지 전송 후 입력 필드 초기화
+                input.value = '';
+                // 새 메시지 추가
+                const messageList = document.getElementById('messageList');
+                const newMessage = document.createElement('div');
+                newMessage.className = 'message';
+                newMessage.innerHTML = `<strong>${senderId}:</strong> ${message}`;
+                messageList.appendChild(newMessage);
+                messageList.scrollTop = messageList.scrollHeight;  // 스크롤을 맨 아래로
+            });
+        }
+    </script>
+</body>
+</html>
+
