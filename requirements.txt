@@ -11,3 +11,8 @@ paypal-checkout-serversdk
 uuid
 Django>=3.2
 mongoengine
+flask-mail
+authlib
+Flask-OAuthlib
+bcrypt
+requests
