@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Room List</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Chat Room List</h1>
+        <div id="chat-room-list">
+            {% if chat_rooms %}
+                <ul>
+                    {% for chat_room in chat_rooms %}
+                        <li>
+                            <strong>Chat Room ID:</strong> {{ chat_room['chat_room_id'] }} <br>
+                            <strong>Last Message:</strong> {{ chat_room['last_message'] }} <br>
+                            <strong>Sender:</strong> {{ chat_room['sender_id'] }} <br>
+                            <strong>Updated At:</strong> {{ chat_room['updated_at'] }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No chat rooms found.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
