@@ -1,62 +1,52 @@
-from flask import Blueprint, jsonify, request, abort, render_template
-from app.services.chat_room_list_service import ChatRoomService  # 경로 수정 
-from app.repositories.chat_room_list_repository import ChatRoomRepository  # 경로 수정 
-from app.models.mongodb_chat_room_management import ChatRoomManagement  # 경로 수정
+# chat_room_list_routes.py
+from flask import Blueprint, jsonify, request, render_template, redirect, url_for
+from app.services.chat_room_list_service import ChatRoomService
+import os
 
 # Flask의 Blueprint를 사용해 라우터 생성
 chat_room_list_bp = Blueprint('chat_room_list', __name__)
 
 # 의존성 주입: ChatRoomService 인스턴스 생성
 def get_chat_room_service():
-    db = None  # MongoDB 연결 객체가 필요한 경우 처리할 수 있습니다.
-    chat_room_repository = ChatRoomRepository(db)
-    return ChatRoomService(chat_room_repository)
+    mongo_uri = os.getenv('MONGO_URI', 'mongodb://cornsoup:Chobob311^^@210.110.103.135:27017/itching_mongodb?authSource=admin')
+    return ChatRoomService(mongo_uri)
 
-# 사용자가 참여한 채팅방 목록을 HTML로 렌더링
-@chat_room_list_bp.route("/chatroomlist", methods=["GET"])
+# 채팅방 목록을 HTML로 렌더링
+@chat_room_list_bp.route("/", methods=["GET"])
 def get_chat_room_list():
-    user_id = request.args.get("user_id", "defalut_user_id")
+    user_id = request.args.get("user_id", "freelancer01")  # 기본값을 freelancer01로 설정
     if not user_id:
-        return abort(400, "user_id is required")
-    
+        return jsonify({"error": "user_id is required"}), 400
+
     service = get_chat_room_service()
-    chat_rooms = service.get_filtered_and_sorted_chat_rooms_for_user(user_id)
-    
+    chat_rooms = service.get_chat_rooms_for_user(user_id)
+
     if not chat_rooms:
         return render_template("chat_room_list.html", chat_rooms=None)
-    
+
     # 채팅방 데이터를 HTML로 넘겨줌
     chat_room_data = []
     for chat_room in chat_rooms:
-        last_message_info = service.get_last_message_info_from_chat_room(chat_room)
+        last_message_info = chat_room.get("message_mapping", [])[-1] if chat_room.get("message_mapping") else None
         chat_room_data.append({
-            "chat_room_id": chat_room.chat_room_id,
-            "last_message": last_message_info["message"] if last_message_info else "No messages",
-            "sender_id": last_message_info["sender_id"] if last_message_info else "Unknown",
-            "updated_at": chat_room.updated_at
+            "chat_room_id": chat_room["chat_room_id"],
+            "client_user_id": chat_room["participants_mapping"]["client_user_id"],
+            "last_message": last_message_info["message_content"] if last_message_info else "No messages",
+            "sender_id": last_message_info["sender_user_id"] if last_message_info else "Unknown",
+            "updated_at": chat_room["updated_at"]
         })
-    
+
     return render_template("chat_room_list.html", chat_rooms=chat_room_data)
 
-# 특정 채팅방의 가장 최근 메시지를 JSON으로 반환
-@chat_room_list_bp.route("/chatroomlist/<chat_room_id>/last_message", methods=["GET"])
-def get_last_message_from_chat_room_list(chat_room_id):
-    user_id = request.args.get("user_id")
-    if not user_id:
-        return abort(400, "user_id is required")
-
+# 특정 채팅방으로 이동하는 라우트 추가
+@chat_room_list_bp.route("/chat_room/<chat_room_id>", methods=["GET"])
+def chat_room(chat_room_id):
     service = get_chat_room_service()
-    chat_rooms = service.get_all_chat_rooms_for_user(user_id)
     
-    # 해당 채팅방이 사용자의 채팅방 목록에 있는지 확인
-    chat_room = next((room for room in chat_rooms if room.chat_room_id == chat_room_id), None)
-    if not chat_room:
-        return abort(404, "Chat room not found")
-    
-    # 채팅방에서 가장 최근 메시지 정보 가져오기
-    last_message_info = service.get_last_message_info_from_chat_room(chat_room)
-    if not last_message_info:
-        return abort(404, "No messages found in the chat room")
-    
-    return jsonify(last_message_info), 200
+    # 채팅방 정보를 MongoDB에서 가져오기
+    chat_room = service.get_chat_room_by_id(chat_room_id)
 
+    if not chat_room:
+        return jsonify({"error": "Chat room not found"}), 404
+
+    return render_template("chat_room.html", chat_room=chat_room)
