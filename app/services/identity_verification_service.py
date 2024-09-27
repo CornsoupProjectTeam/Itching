@@ -41,6 +41,7 @@ class IdentityVerificationService:
         # 레포지토리에 저장 (DB)
         self.repository.save_verification(phone_number, verification_code, expiration_time)
 
+    """메서드 명을 소문자로 시작했으면 좋겠는데.."""
     def _make_signature(self, timestamp):
         # 네이버 클라우드 SMS API 서명을 생성하는 함수
         secret_key = bytes(self.secret_key, 'UTF-8')

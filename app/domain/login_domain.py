@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass, field
 from typing import Optional
+"""아이디, 비밀번호 규칙 설정 추가"""
 
 @dataclass
 class User:

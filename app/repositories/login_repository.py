@@ -49,8 +49,8 @@ class LoginRepository:
             print(f"Error updating user: {e}")
             return False
 
+    """이 메서드 삭제하고 로그아웃 관련한 메서드 추가할 것"""
     def deactivate_user(self, user_id):
-        """사용자를 비활성화 상태로 변경합니다 (탈퇴 처리)."""
         user = self.find_by_user_id(user_id)
         if user:
             user.is_active = False

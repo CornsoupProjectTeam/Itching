@@ -1,4 +1,5 @@
 #payment_authentication_repository.py
+"""payment_repository.py로 변경해주세요"""
 
 from app.models.mysql_payment import Payment
 from app.models.mysql_login import Login
@@ -26,7 +27,7 @@ class PaymentRepository:
     def find_by_client_user_id(client_user_id):
         return Payment.query.filter_by(client_user_id=client_user_id).first()
 
-
+"""빼주세요"""
 class LoginRepository:
 
     @staticmethod

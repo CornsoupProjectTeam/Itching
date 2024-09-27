@@ -2,6 +2,7 @@
 from typing import List
 from app.models.mongodb_chat_room_management import ChatRoomManagement
 
+"""레포지토리도 하나로 합치는게 어떨지.."""
 class ChatRoomRepository:
     def __init__(self, db=None):
         self.db = db  # MongoDB 연결 객체가 필요한 경우 처리할 수 있습니다. 여기서는 mongoengine이 직접 관리.

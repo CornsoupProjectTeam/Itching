@@ -157,7 +157,8 @@ class LoginService:
         return "Password reset link sent to your email.", True
 
     def reset_password(self, token, new_password):
-        """비밀번호 재설정 처리"""
+        """비밀번호 재설정 처리 -> 비밀번호 까먹었을 때"""
+        
         try:
             email = self.serializer.loads(token, salt='email-confirm-salt', max_age=3600)
             user = self.user_repository.find_by_user_id(email)
