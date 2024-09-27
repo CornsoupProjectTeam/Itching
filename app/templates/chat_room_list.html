@@ -1,0 +1,28 @@
+<!-- chat_room_list.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Room List</title>
+</head>
+<body>
+    <h1>Chat Room List</h1>
+
+    {% if chat_rooms %}
+        <ul>
+        {% for chat_room in chat_rooms %}
+            <li>
+                채팅방 ID: {{ chat_room.chat_room_id }} <br>
+                마지막 메시지: {{ chat_room.last_message }} <br>
+                <!-- 보낸 사람 클릭 시 chat_room으로 이동 -->
+                <a href="{{ url_for('chat_room_list.chat_room', chat_room_id=chat_room.chat_room_id) }}">보낸 사람: {{ chat_room.sender_id }}</a> <br>
+                마지막 업데이트: {{ chat_room.updated_at }}
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>채팅방이 없습니다.</p>
+    {% endif %}
+</body>
+</html>
+
