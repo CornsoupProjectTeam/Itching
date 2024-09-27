@@ -3,6 +3,7 @@ from typing import List, Dict
 from pymongo import MongoClient
 
 class ChatRoomService:
+    """리스트를 클래스로 따로 빼고 싶으면 chat_room_service.py에서 구분하면 좋을것 같음"""
     def __init__(self, mongo_uri: str):
         # MongoDB 클라이언트 설정
         self.client = MongoClient(mongo_uri)

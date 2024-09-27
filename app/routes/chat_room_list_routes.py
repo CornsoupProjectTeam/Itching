@@ -7,6 +7,7 @@ import os
 chat_room_list_bp = Blueprint('chat_room_list', __name__)
 
 # 의존성 주입: ChatRoomService 인스턴스 생성
+"""이게 뭘 의미하는지? 이런 방식으로 해야하는지?"""
 def get_chat_room_service():
     mongo_uri = os.getenv('MONGO_URI', 'mongodb://cornsoup:Chobob311^^@210.110.103.135:27017/itching_mongodb?authSource=admin')
     return ChatRoomService(mongo_uri)
@@ -24,7 +25,8 @@ def get_chat_room_list():
     if not chat_rooms:
         return render_template("chat_room_list.html", chat_rooms=None)
 
-    # 채팅방 데이터를 HTML로 넘겨줌
+    # 채팅방 데이터를 HTML로 넘겨줌 
+    """서비스 계층에서 가공해서 라우트에서 받아서 넘기도록 해야할 것 같음"""
     chat_room_data = []
     for chat_room in chat_rooms:
         last_message_info = chat_room.get("message_mapping", [])[-1] if chat_room.get("message_mapping") else None

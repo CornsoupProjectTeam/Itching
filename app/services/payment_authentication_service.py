@@ -11,14 +11,18 @@ GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 GOOGLE_DISCOVERY_URL = 'https://accounts.google.com/.well-known/openid-configuration'
 
+"""클래스명 AuthenticationService로 변경"""
 class PaymentAuthenticationService:
 
     @staticmethod
     def authenticate(chat_room_id, user_name, client_user_id, password):
+        
+        """유저 이름은 입력을 받아 테이블에 삽입하면 되고 카드 이름 검증은 이 단계에서 필요 없는 로직임"""
         # 이름 검증
         if not AuthenticationDomain.verify_user_name(user_name):
             return False, "User name verification failed."
         
+        """카드 이름 검증은 필요 없음"""
         # 카드 이름 검증
         if not PaymentRepository.verify_card_name(user_name):
             return False, "Card name verification failed."
@@ -26,6 +30,8 @@ class PaymentAuthenticationService:
         # 사용자 이름을 결제 테이블에 삽입
         AuthenticationDomain.insert_user_name(chat_room_id, user_name)
 
+        """사용자가 입력한 ID와 비밀번호가 맞는지 확인하는 로직이 필요"""
+        """로컬 계정 아이디/비밀번호 받아서 인증하는 부분이 없음 아이디가 세션과 일치하는지, 비밀번호가 일치하는지 검증하는 로직 필요"""
         # 사용자 ID 검증
         if not AuthenticationDomain.verify_user_id(client_user_id):
             return False, "User ID verification failed."
@@ -33,6 +39,7 @@ class PaymentAuthenticationService:
         # 로그인 정보 확인
         login_user = LoginRepository.find_by_user_id(client_user_id)
         
+
         if login_user.provider_id == 'google':
             # 구글 로그인 사용자의 경우 리프레시 토큰으로 액세스 토큰 갱신
             try:
