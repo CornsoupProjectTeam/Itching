@@ -5,8 +5,7 @@ db = SQLAlchemy()
 class FreelancerAccountInfo(db.Model):
     __tablename__ = 'FREELANCER_ACCOUNT_INFO'
     
-    account_id = db.Column(db.String(50), primary_key=True)
-    public_profile_id = db.Column(db.String(50), db.ForeignKey('PUBLIC_PROFILE.public_profile_id', ondelete='CASCADE'), nullable=False)
+    public_profile_id = db.Column(db.String(50), db.ForeignKey('PUBLIC_PROFILE.public_profile_id', ondelete='CASCADE'), primary_key=True)
     bank_name = db.Column(db.String(50), nullable=False)
     account_number = db.Column(db.String(255), nullable=False)
     account_holder = db.Column(db.String(50), nullable=False)

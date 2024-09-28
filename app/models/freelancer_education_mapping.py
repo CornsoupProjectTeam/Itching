@@ -5,7 +5,7 @@ db = SQLAlchemy()
 class FreelancerEducationMapping(db.Model):
     __tablename__ = 'FREELANCER_EDUCATION_MAPPING' 
     
-    education_id = db.Column(db.String(50), primary_key=True)
+    sequence = db.Column(db.Integer, primary_key=True, autoincrement=True)
     public_profile_id = db.Column(db.String(50), db.ForeignKey('PUBLIC_PROFILE.public_profile_id', ondelete='CASCADE'), nullable=False)
     school = db.Column(db.String(100), nullable=False)
     
