@@ -23,3 +23,6 @@ def generate_project_id():
 
 def generate_client_post_id():
     return f"CP{uuid.uuid4()}"
+
+def generate_education_id():
+    return f"EDU{uuid.uuid4()}"

@@ -15,6 +15,7 @@ class PublicProfile(db.Model):
     project_duration = db.Column(db.Integer)
     freelancer_badge = db.Column(db.Enum('Gold', 'Silver', 'Bronze'), default='Bronze')
     match_count = db.Column(db.Integer, default=0)
+    sns_link = db.Column(db.String(255))
     average_response_time = db.Column(db.Integer)
     freelancer_registration_date = db.Column(db.DateTime)
     public_profile_registration_st = db.Column(db.Boolean, default=True)
