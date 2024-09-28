@@ -1,14 +1,14 @@
 #login_service.py
 
 from app.repositories.login_repository import LoginRepository
-from app.models.mysql_login import Login
+from app.models.login import Login
 from flask import session
 from itsdangerous import URLSafeTimedSerializer
 from flask_mail import Message
 from app import app, mail
 from flask import session, url_for, jsonify
-from app.models.mongodb_user_information import UserInformation
-from app.models.mysql_user_consent import UserConsent
+from app.models.user_information import UserInformation
+from app.models.user_consent import UserConsent
 from app.utils.encryption_util import EncryptionUtils
 from authlib.integrations.flask_client import OAuth
 from app.repositories.user_information_repository import UserInformationRepository
@@ -33,6 +33,12 @@ class LoginService:
         return self.serializer.dumps(email, salt='email-confirm-salt')
 
     def sign_up(self, user_id, password, provider_id=None, email=None, personal_info_consent=None, terms_of_service_consent=None):
+        if not Login.validate_user_id(user_id):
+            return "User ID must only contain lowercase letters and numbers.", False
+    
+        if not Login.validate_password(password):
+            return "Password must be at least 8 characters long and contain only lowercase letters and numbers.", False
+        
         # 비밀번호를 암호화하여 저장
         hashed_password = EncryptionUtils.hash_password(password)
 
@@ -102,7 +108,7 @@ class LoginService:
     def save_user_profile(self, user_id, email, nickname, business_area, profile_picture_path, preferred_freelancer_type_data):
         try:
             user_info_repo = UserInformationRepository()
-            # UserProfile MongoDB에 저장
+            # UserProfile SQL에 저장
             user_profile_data = {
                 "user_id": user_id,
                 "email": email,

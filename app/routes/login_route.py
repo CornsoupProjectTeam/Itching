@@ -3,7 +3,7 @@
 from flask import Blueprint, request, jsonify, redirect, url_for, session
 from authlib.integrations.flask_client import OAuth
 from app.services.login_service import LoginService
-from app.models.mongodb_user_information import UserInformation
+from app.models.user_information import UserInformation
 from app import app
 from flask_mail import Message
 from mongoengine.queryset.visitor import Q
@@ -53,6 +53,7 @@ def signup_info():
         email = request.args.get('email')
         user_id = request.args.get('user_id')
         return jsonify({"message": "Enter additional information", "email": email, "user_id": user_id}), 200
+    
     # POST 요청의 경우 사용자가 로컬 로그인 후 들어오는 화면
     data = request.json
     user_id = data.get('USER_ID')
@@ -66,9 +67,9 @@ def signup_info():
     terms_of_service_consent = data.get('TERMS_OF_SERVICE_CONSENT')
     preferred_freelancer_type_data = data.get('PREFERRED_FREELANCER_TYPE_MAPPING', {})
     
-    # MySQL에 Login 정보 저장 및 MongoDB에 UserProfile 저장
+    # MySQL에 Login 정보 저장 및 UserProfile 저장
     message, success = login_service.sign_up(user_id, password, provider_id, email, personal_info_consent=personal_info_consent, 
-        terms_of_service_consent=terms_of_service_consent)
+                                             terms_of_service_consent=terms_of_service_consent)
     
     if success:
         save_success, save_message = login_service.save_user_profile(
@@ -86,8 +87,9 @@ def signup_info():
 @login_bp.route('/login', methods=['POST'])
 def login():
     data = request.json
-    user_id = data.get('USER_ID')  # 필드명 대문자로 수정
+    user_id = data.get('USER_ID')
     password = data.get('PASSWORD')
+    
     message, success = login_service.login(user_id, password)
     return jsonify({"message": message, "success": success}), (200 if success else 400)
 
@@ -103,14 +105,21 @@ def account_recovery():
 
 @login_bp.route('/account/recovery/find-id', methods=['POST'])
 def find_id():
-    """이메일을 통해 사용자 ID 찾기"""
+    """이메일을 통해 사용자 ID 찾기 이거 수정"""
     data = request.json
     email = data.get('EMAIL')
 
     if not email:
         return jsonify({"message": "Email is required.", "success": False}), 400
     
-    message, success = login_service.find_user_id_by_email(email)
+    user = UserInformation.query.filter_by(email=email).first()
+    
+    if not user:
+        return jsonify({"message": "User not found with the provided email.", "success": False}), 404
+
+    # 서비스 계층에서 사용자 ID 전송 처리
+    message, success = login_service.send_user_id_by_email(email, user.user_id)
+    
     return jsonify({"message": message, "success": success}), (200 if success else 400)
 
 @login_bp.route('/account/recovery/reset-password', methods=['POST'])
@@ -124,7 +133,6 @@ def reset_password_request():
 
     message, success = login_service.send_password_reset_link(email, user_id)
     return jsonify({"message": message, "success": success}), (200 if success else 400)
-
 
 @login_bp.route('/reset-password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
