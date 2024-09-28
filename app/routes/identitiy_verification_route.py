@@ -8,7 +8,6 @@ from app import mail
 import secrets
 import os
 
-
 # Blueprint 정의
 identity_verification_bp = Blueprint('identity_verification_bp', __name__)
 identity_verification = IdentityVerificationService()
