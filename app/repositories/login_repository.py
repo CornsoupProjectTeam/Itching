@@ -1,7 +1,7 @@
 #login_repository.py
 
-from app.models.mysql_login import Login
-from app.models.mysql_user_consent import UserConsent
+from app.models.login import Login
+from app.models.user_consent import UserConsent
 from app import db
 from app.repositories.user_information_repository import UserInformationRepository
 
@@ -49,12 +49,12 @@ class LoginRepository:
             print(f"Error updating user: {e}")
             return False
 
-    """이 메서드 삭제하고 로그아웃 관련한 메서드 추가할 것"""
-    def deactivate_user(self, user_id):
+    def logout(self, user_id):
+        """로그아웃 처리: 세션이나 토큰을 삭제하거나 무효화"""
         user = self.find_by_user_id(user_id)
         if user:
-            user.is_active = False
+            user.is_active = False  # 비활성화 처리
             return self.update(user)
         else:
-            print(f"User with user_id {user_id} not found for deactivation.")
+            print(f"User with user_id {user_id} not found for logout.")
             return False
