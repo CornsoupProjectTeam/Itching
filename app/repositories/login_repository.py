@@ -58,3 +58,22 @@ class LoginRepository:
         else:
             print(f"User with user_id {user_id} not found for logout.")
             return False
+        
+    def get_password_by_user_id(self, user_id: str):
+        # 주어진 user_id로 비밀번호를 가져오는 메서드
+        user = Login.query.filter_by(user_id=user_id).first()
+        return user.password if user else None
+
+    def save_new_password(self, user_id: str, hashed_new_password: str) -> dict:
+        # 주어진 user_id의 비밀번호를 새로운 해시된 비밀번호로 업데이트하는 메서드
+        try:
+            user = Login.query.filter_by(user_id=user_id).first()
+            if user:
+                user.password = hashed_new_password
+                db.session.commit()
+                return {'success': True}
+            return {'success': False}
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error updating password: {e}")
+            return {'success': False}
