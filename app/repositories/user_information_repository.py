@@ -1,22 +1,45 @@
-from app.utils.image_upload import delete_image
-from flask import current_app
 from sqlalchemy.exc import SQLAlchemyError
-import os
-from models.freelancer_information import UserInformation, db
+from models.freelancer_information import UserInformation, db, ClientPreferredFieldMapping, PreferredFreelancerMapping 
 
 class UserInformationRepository:
 
-    def get_user_info_by_user_id(self, user_id):
-        # 주어진 user_id로 사용자 정보를 조회
+    def get_user_info_by_user_id(self, user_id: str) -> dict:
         try:
+            # 기본 사용자 정보 조회
             user_info = UserInformation.query.filter_by(user_id=user_id).first()
-            if user_info:
-                return {'success': True, 'user_info': user_info}
-            return {'success': False}
-        except SQLAlchemyError as e:
-            db.session.rollback() 
-            return {'success': False, 'message': str(e)}  
 
+            if not user_info:
+                return {'success': False, 'message': '사용자를 찾을 수 없습니다.'}
+
+            # preferred_fields 리스트 가져오기
+            preferred_fields = ClientPreferredFieldMapping.query.filter_by(user_id=user_id).all()
+            preferred_fields_list = [{'user_id': field.user_id, 'preferred_code': field.preferred_code} for field in preferred_fields]
+
+            # preferred_freelancer 리스트 가져오기
+            preferred_freelancers = PreferredFreelancerMapping.query.filter_by(user_id=user_id).all()
+            preferred_freelancers_list = [{'user_id': freelancer.user_id, 'preferred_code': freelancer.preferred_code} for freelancer in preferred_freelancers]
+
+            # 사용자 정보와 함께 반환
+            return {
+                'success': True,
+                'user_info': {
+                    'user_id': user_info.user_id,
+                    'email': user_info.email,
+                    'nickname': user_info.nickname,
+                    'business_area': user_info.business_area,
+                    'profile_picture_path': user_info.profile_picture_path,
+                    'inquiry_st': user_info.inquiry_st,
+                    'freelancer_registration_st': user_info.freelancer_registration_st,
+                    'created_at': user_info.created_at,
+                    'updated_at': user_info.updated_at,
+                    'preferred_fields': preferred_fields_list,
+                    'preferred_freelancer': preferred_freelancers_list
+                }
+            }
+        except Exception as e:
+            db.session.rollback()  
+            return {'success': False, 'message': str(e)}
+        
     def check_user_id_duplication(self, user_id: str) -> bool:
         # 주어진 user_id가 중복되는지 확인
         try:
@@ -29,6 +52,19 @@ class UserInformationRepository:
         # 주어진 닉네임이 중복되는지 확인
         try:
             return UserInformation.query.filter_by(nickname=nickname).count() > 0
+        except SQLAlchemyError as e:
+            db.session.rollback()  
+            return {'success': False, 'message': str(e)} 
+    
+    def save_new_nickname(self, user_id: str, new_nickname: str) -> dict:
+        # 주어진 user_id의 닉네임을 새로운 닉네임으로 업데이트
+        try:
+            user_info = UserInformation.query.filter_by(user_id=user_id).first()
+            if user_info:
+                user_info.nickname = new_nickname
+                db.session.commit()
+                return {'success': True}
+            return {'success': False}
         except SQLAlchemyError as e:
             db.session.rollback()  
             return {'success': False, 'message': str(e)} 
@@ -59,18 +95,42 @@ class UserInformationRepository:
             db.session.rollback()  
             return {'success': False, 'message': str(e)} 
         
-    def insert_user(self, user_info: dict) -> dict:
-        # 새 사용자 정보를 삽입
-        if not self.check_user_id_duplication(user_info['user_id']):
-            try:
-                new_user = UserInformation(**user_info)
-                db.session.add(new_user)
-                db.session.commit()
-                return {'success': True}
-            except SQLAlchemyError as e:
-                db.session.rollback()  
-                return {'success': False, 'message': str(e)} 
-        return {'success': False}
+    def insert_new_user(self, user_id: str, email: str, profile_picture_path: Optional[str], 
+                    nickname: str, business_area: Optional[str], 
+                    preferred_fields: list, preferred_freelancers: list) -> dict:
+        try:
+            # 새로운 사용자 정보 저장
+            new_user = UserInformation(
+                user_id=user_id,
+                email=email,
+                profile_picture_path=profile_picture_path,
+                nickname=nickname,
+                business_area=business_area
+            )
+            db.session.add(new_user)
+            
+            # preferred_fields 저장
+            for field in preferred_fields:
+                new_preferred_field = ClientPreferredFieldMapping(
+                    user_id=field.user_id, 
+                    preferred_code=field.preferred_code
+                )
+                db.session.add(new_preferred_field)
+
+            # preferred_freelancers 저장
+            for freelancer in preferred_freelancers:
+                new_preferred_freelancer = PreferredFreelancerMapping(
+                    user_id=freelancer.user_id, 
+                    preferred_code=freelancer.preferred_code
+                )
+                db.session.add(new_preferred_freelancer)
+
+            db.session.commit()
+            return {'success': True}
+        
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            return {'success': False, 'message': str(e)}
 
     def get_user_by_email(self, email: str) -> dict:
         # 주어진 이메일로 사용자 정보를 조회
@@ -78,19 +138,6 @@ class UserInformationRepository:
             user_info = UserInformation.query.filter_by(email=email).first()
             if user_info:
                 return {'success': True, 'user_info': user_info}
-            return {'success': False}
-        except SQLAlchemyError as e:
-            db.session.rollback()  
-            return {'success': False, 'message': str(e)} 
-
-    def save_new_nickname(self, user_id: str, new_nickname: str) -> dict:
-        # 주어진 user_id의 닉네임을 새로운 닉네임으로 업데이트
-        try:
-            user_info = UserInformation.query.filter_by(user_id=user_id).first()
-            if user_info:
-                user_info.nickname = new_nickname
-                db.session.commit()
-                return {'success': True}
             return {'success': False}
         except SQLAlchemyError as e:
             db.session.rollback()  
@@ -113,19 +160,6 @@ class UserInformationRepository:
             user_info = UserInformation.query.filter_by(user_id=user_id).first()
             if user_info:
                 user_info.business_area = new_business_area
-                db.session.commit()
-                return {'success': True}
-            return {'success': False}
-        except SQLAlchemyError as e:
-            db.session.rollback()  
-            return {'success': False, 'message': str(e)} 
-
-    def save_new_interest_area(self, user_id: str, new_interest_data: dict) -> dict:
-        # 주어진 user_id의 interest_area_mapping을 새로운 관심사 데이터로 업데이트
-        try:
-            user_info = UserInformation.query.filter_by(user_id=user_id).first()
-            if user_info:
-                user_info.interest_area_mapping = new_interest_data
                 db.session.commit()
                 return {'success': True}
             return {'success': False}
@@ -157,7 +191,54 @@ class UserInformationRepository:
             db.session.rollback()  
             return {'success': False, 'message': str(e)} 
 
-    
+    # 선호 분야 저장
+    def save_preferred_field(self, preferred_field_mapping: ClientPreferredFieldMapping) -> dict:
+        try:
+            db.session.add(preferred_field_mapping)
+            db.session.commit()
+            return {'success': True}
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            return {'success': False, 'message': str(e)}
+
+    # 선호 분야 삭제
+    def delete_preferred_field(self, preferred_field_mapping: ClientPreferredFieldMapping) -> dict:
+        try:
+            # 해당하는 user_id와 preferred_code를 기준으로 삭제
+            ClientPreferredFieldMapping.query.filter_by(
+                user_id=preferred_field_mapping.user_id,
+                preferred_code=preferred_field_mapping.preferred_code
+            ).delete()
+            db.session.commit()
+            return {'success': True}
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            return {'success': False, 'message': str(e)}
+
+    # 선호하는 프리랜서 저장
+    def save_preferred_freelancer(self, preferred_freelancer_mapping: PreferredFreelancerMapping) -> dict:
+        try:
+            db.session.add(preferred_freelancer_mapping)
+            db.session.commit()
+            return {'success': True}
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            return {'success': False, 'message': str(e)}
+
+    # 선호하는 프리랜서 삭제
+    def delete_preferred_freelancer(self, preferred_freelancer_mapping: PreferredFreelancerMapping) -> dict:
+        try:
+            # 해당하는 user_id와 preferred_code를 기준으로 삭제
+            PreferredFreelancerMapping.query.filter_by(
+                user_id=preferred_freelancer_mapping.user_id,
+                preferred_code=preferred_freelancer_mapping.preferred_code
+            ).delete()
+            db.session.commit()
+            return {'success': True}
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            return {'success': False, 'message': str(e)}
+        
     def check_freelancer_registration(self, user_id: str) -> bool:
         # 주어진 user_id의 프리랜서 등록 상태를 확인
         try:
