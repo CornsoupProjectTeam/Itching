@@ -2,7 +2,7 @@
 from flask import current_app
 import os
 from mongoengine import DoesNotExist
-from app.models.mongodb_user_information import UserInformation
+from app.models.user_information import UserInformation
 
 
 class UserInformationRepository:
