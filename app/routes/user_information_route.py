@@ -8,6 +8,7 @@ user_information_bp = Blueprint('user_information', __name__, url_prefix='/main/
 
 @user_information_bp.before_request
 def before_request():
+    print(f"Request view args: {request.view_args}")  # 여기서 view_args 확인
     g.user_information_repository = UserInformationRepository()
     g.user_information_service = UserInformationService(g.user_information_repository, request.view_args.get('user_id'))
 
