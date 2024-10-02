@@ -17,7 +17,7 @@ class UserInformationDomain:
     updated_at: datetime
     
     preferred_fields: List[ClientPreferredFieldMapping]
-    preferred_freelancer: List[PreferredFreelancerMapping]
+    preferred_freelancers: List[PreferredFreelancerMapping]
 
     def check_nickname(self, new_nickname: str):
         # 닉네임이 영어 소문자와 숫자로만 이루어졌는지 확인하는 정규 표현식
@@ -50,18 +50,18 @@ class UserInformationDomain:
         self.freelancer_registration_st = is_registered
 
     def update_preferred_fields(self, new_field: ClientPreferredFieldMapping):
-        if not any(field.preferred_code == new_field.preferred_code for field in self.preferred_fields):
+        if not any(field.field_code == new_field.field_code for field in self.preferred_fields):
             self.preferred_fields.append(new_field)
 
-    def remove_preferred_fields(self, preferred_field_mapping: ClientPreferredFieldMapping):
+    def remove_preferred_fields(self, field_codes_mapping: ClientPreferredFieldMapping):
         # 주어진 매핑에 해당하는 선호 분야를 도메인 객체에서 삭제
-        to_remove = [field for field in self.preferred_fields if field.preferred_code == preferred_field_mapping.preferred_code]
+        to_remove = [field for field in self.preferred_fields if field.field_code == field_codes_mapping.field_code]
 
         for field in to_remove:
             if field in self.preferred_fields:
                 self.preferred_fields.remove(field)
             else:
-                print(f"오류: {field.preferred_code}가 선호 분야에서 찾을 수 없습니다.")
+                print(f"오류: {field.field_code}가 선호 분야에서 찾을 수 없습니다.")
 
     def update_preferred_freelancers(self, new_freelancer: PreferredFreelancerMapping):
         if not any(freelancer.preferred_code == new_freelancer.preferred_code for freelancer in self.preferred_freelancers):

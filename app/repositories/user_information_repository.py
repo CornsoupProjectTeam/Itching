@@ -169,17 +169,17 @@ class UserInformationRepository:
             return {'success': False, 'message': str(e)} 
 
     def save_profile_picture_path(self, user_id: str, new_filepath: str) -> dict:
-        try:
-            user_info = self.get_user_info_by_user_id(user_id)['user_info']
+        try:            
+            user_info = UserInformation.query.filter_by(user_id=user_id).first() 
 
             if user_info:
-                user_info.profile_picture_path = new_filepath
-                db.session.commit()
+                user_info.profile_picture_path = new_filepath 
+                db.session.commit() 
                 return {'success': True}
             return {'success': False}
         except SQLAlchemyError as e:
-            db.session.rollback()  
-            return {'success': False, 'message': str(e)} 
+            db.session.rollback() 
+            return {'success': False, 'message': str(e)}
 
     def get_profile_picture_path(self, user_id: str) -> dict:
         try:            
@@ -193,9 +193,9 @@ class UserInformationRepository:
             return {'success': False, 'message': str(e)} 
 
     # 선호 분야 저장
-    def save_preferred_field(self, preferred_field_mapping: ClientPreferredFieldMapping) -> dict:
+    def save_preferred_field(self, field_codes_mapping: ClientPreferredFieldMapping) -> dict:
         try:
-            db.session.add(preferred_field_mapping)
+            db.session.add(field_codes_mapping)
             db.session.commit()
             return {'success': True}
         except SQLAlchemyError as e:
@@ -203,12 +203,12 @@ class UserInformationRepository:
             return {'success': False, 'message': str(e)}
 
     # 선호 분야 삭제
-    def delete_preferred_field(self, preferred_field_mapping: ClientPreferredFieldMapping) -> dict:
+    def delete_preferred_field(self, field_codes_mapping: ClientPreferredFieldMapping) -> dict:
         try:
             # 해당하는 user_id와 preferred_code를 기준으로 삭제
             ClientPreferredFieldMapping.query.filter_by(
-                user_id=preferred_field_mapping.user_id,
-                preferred_code=preferred_field_mapping.preferred_code
+                user_id=field_codes_mapping.user_id,
+                field_code=field_codes_mapping.field_code
             ).delete()
             db.session.commit()
             return {'success': True}

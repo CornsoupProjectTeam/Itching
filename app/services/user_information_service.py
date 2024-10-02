@@ -37,7 +37,7 @@ class UserInformationService:
                 created_at=user_info_data['created_at'],
                 updated_at=user_info_data['updated_at'],
                 preferred_fields=preferred_fields,
-                preferred_freelancer=preferred_freelancers
+                preferred_freelancers=preferred_freelancers
             )
         else:
             raise ValueError("사용자 정보를 찾을 수 없습니다.")
@@ -100,37 +100,37 @@ class UserInformationService:
             return {"success": False, "message": "비즈니스 정보 업데이트에 실패하였습니다."}
 
     # 선호 분야 변경
-    def change_preferred_field(self, preferred_codes: list) -> dict:
-        for preferred_code in preferred_codes:
-            preferred_field_mapping = ClientPreferredFieldMapping(
+    def change_preferred_field(self, field_codes: list) -> dict:
+        for field_code in field_codes:
+            field_codes_mapping = ClientPreferredFieldMapping(
                 user_id=self.user_information_domain.user_id,
-                preferred_code=preferred_code
+                field_code=field_code
             )
-            result = self.user_information_repository.save_preferred_field(preferred_field_mapping)
+            result = self.user_information_repository.save_preferred_field(field_codes_mapping)
             
             if result['success']:
-                self.user_information_domain.update_preferred_fields(preferred_field_mapping)
+                self.user_information_domain.update_preferred_fields(field_codes_mapping)
             else:
-                return {'success': False, 'message': f'{preferred_code} 선호 분야 저장에 실패했습니다.'}
+                return {'success': False, 'message': f'{field_code} 선호 분야 저장에 실패했습니다.'}
         
         return {'success': True, 'message': '선호 분야가 성공적으로 저장되었습니다.'}
 
     # 선호 분야 삭제
-    def delete_preferred_field(self, preferred_codes: list) -> dict:
-        for preferred_code in preferred_codes:
-            preferred_field_mapping = ClientPreferredFieldMapping(
+    def delete_preferred_field(self, field_codes: list) -> dict:
+        for field_code in field_codes:
+            field_codes_mapping = ClientPreferredFieldMapping(
                 user_id=self.user_information_domain.user_id,
-                preferred_code=preferred_code
+                field_code=field_code
             )
 
             # 선호 분야 삭제 로직 호출
-            result = self.user_information_repository.delete_preferred_field(preferred_field_mapping)
+            result = self.user_information_repository.delete_preferred_field(field_codes_mapping)
             
             if not result['success']:
-                return {'success': False, 'message': f'{preferred_code} 선호 분야 삭제에 실패했습니다.'}
+                return {'success': False, 'message': f'{field_code} 선호 분야 삭제에 실패했습니다.'}
             
             # 도메인 객체 업데이트
-            self.user_information_domain.remove_preferred_fields(preferred_field_mapping)
+            self.user_information_domain.remove_preferred_fields(field_codes_mapping)
 
         return {'success': True, 'message': '선호 분야가 성공적으로 삭제되었습니다.'}
 
