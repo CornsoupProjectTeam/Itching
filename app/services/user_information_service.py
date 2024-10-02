@@ -11,14 +11,20 @@ class UserInformationService:
         self.initialize_domain()
 
     def initialize_domain(self):
+
+        print(f"Initializing domain for user_id: {self.user_id}")
+
         # 레포지토리에서 데이터를 가져와 도메인 객체 초기화
         user_info_data = self.user_information_repository.get_user_info_by_user_id(self.user_id)
         
+        # 가져온 데이터가 있는지 확인하는 로깅 추가
+        print(f"User info data received: {user_info_data}")
+
         if user_info_data and user_info_data.get('success'):
             user_info_data = user_info_data['user_info']
             
             # 레포지토리에서 가져온 preferred_fields와 preferred_freelancer 리스트 사용
-            preferred_fields = [ClientPreferredFieldMapping(user_id=field['user_id'], preferred_code=field['preferred_code'])
+            preferred_fields = [ClientPreferredFieldMapping(user_id=field['user_id'], field_code=field['field_code'])
                                 for field in user_info_data.get('preferred_fields', [])]
             
             preferred_freelancers = [PreferredFreelancerMapping(user_id=freelancer['user_id'], preferred_code=freelancer['preferred_code'])

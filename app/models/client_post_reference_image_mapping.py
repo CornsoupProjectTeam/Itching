@@ -1,9 +1,4 @@
-from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
-
-db = SQLAlchemy()
-
-db = SQLAlchemy()
+from app import db
 
 class ClientPostReferenceImageMapping(db.Model):
     __tablename__ = 'CLIENT_POST_REFERENCE_IMAGE_MAPPING'

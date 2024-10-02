@@ -1,6 +1,4 @@
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from app import db
 
 class ProjectImageMapping(db.Model):
     __tablename__ = 'PROJECT_IMAGE_MAPPING'
