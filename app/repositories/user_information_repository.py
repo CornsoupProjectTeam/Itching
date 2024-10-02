@@ -6,36 +6,20 @@ class UserInformationRepository:
 
     def get_user_info_by_user_id(self, user_id: str) -> dict:
         try:
-            # 기본 사용자 정보 조회
-            print(f"Fetching user information for user_id: {user_id}")
+            # 기본 사용자 정보 조회           
             user_info = UserInformation.query.filter_by(user_id=user_id).first()
 
-            # 쿼리 결과 로깅
-            if user_info:
-                print(f"Query successful. User found: {user_info}")
-            else:
-                print(f"Query executed but no user found for user_id: {user_id}")
-
-            if not user_info:
-                print(f"User information not found for user_id: {user_id}")
+            if not user_info:                
                 return {'success': False, 'message': '사용자를 찾을 수 없습니다.'}
-
-
-
-            print(f"User found: {user_info}")
-
-            print(f"Fetching preferred fields for user_id: {user_id}")
+            
             # preferred_fields 리스트 가져오기
             preferred_fields = ClientPreferredFieldMapping.query.filter_by(user_id=user_id).all()
             preferred_fields_list = [{'user_id': field.user_id, 'field_code': field.field_code} for field in preferred_fields]
-            print(f"Preferred fields found: {preferred_fields}")
-
-            print(f"Fetching preferred freelancers for user_id: {user_id}")
+            
             # preferred_freelancer 리스트 가져오기
             preferred_freelancers = PreferredFreelancerMapping.query.filter_by(user_id=user_id).all()
             preferred_freelancers_list = [{'user_id': freelancer.user_id, 'preferred_code': freelancer.preferred_code} for freelancer in preferred_freelancers]
-            print(f"Preferred freelancers found: {preferred_freelancers}")
-
+            
             # 사용자 정보와 함께 반환
             return {
                 'success': True,

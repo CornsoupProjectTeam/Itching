@@ -10,15 +10,10 @@ class UserInformationService:
         self.user_id = user_id
         self.initialize_domain()
 
-    def initialize_domain(self):
-
-        print(f"Initializing domain for user_id: {self.user_id}")
+    def initialize_domain(self):        
 
         # 레포지토리에서 데이터를 가져와 도메인 객체 초기화
         user_info_data = self.user_information_repository.get_user_info_by_user_id(self.user_id)
-        
-        # 가져온 데이터가 있는지 확인하는 로깅 추가
-        print(f"User info data received: {user_info_data}")
 
         if user_info_data and user_info_data.get('success'):
             user_info_data = user_info_data['user_info']
@@ -60,7 +55,7 @@ class UserInformationService:
                 'inquiry_st': user_info.inquiry_st,
                 'freelancer_registration_st': user_info.freelancer_registration_st,
                 'preferred_fields': [
-                    {'user_id': field.user_id, 'preferred_code': field.preferred_code} 
+                    {'user_id': field.user_id, 'preferred_code': field.field_code} 
                     for field in user_info.preferred_fields
                 ],
                 'preferred_freelancer': [
