@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional, List
 from datetime import datetime
-from models.freelancer_information import (
+from app.models.freelancer_information import (
     FreelancerExpertiseFieldMapping,
     FreelancerSkillMapping,
     FreelancerEducationMapping,

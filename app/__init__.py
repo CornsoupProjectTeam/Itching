@@ -22,9 +22,6 @@ db = SQLAlchemy(app)
 mongo = PyMongo(app)
 mail = Mail(app)
 
-# 환경 변수에서 세션에 사용하는 SECRET_KEY 가져오기
-app.secret_key = os.getenv('SECRET_KEY')
-
 # 보안 설정
 #app.config['SESSION_COOKIE_SECURE'] = True  # HTTPS 환경에서만 쿠키 전송
 app.config['SESSION_COOKIE_HTTPONLY'] = True  # 자바스크립트로 세션 쿠키 접근 금지
@@ -36,10 +33,8 @@ from app.blueprints.payments import payments_bp
 # 외부 블루프린트 등록
 app.register_blueprint(payments_bp, url_prefix='/payments')
 
-
 from app.routes.chat_room_list_routes import chat_room_list_bp
 app.register_blueprint(chat_room_list_bp, url_prefix='/chatroomlist')
-
 
 # 라우트 초기화 (routes/routes.py에서 초기화)
 from app.routes.routes import init_routes

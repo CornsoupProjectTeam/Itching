@@ -1,4 +1,4 @@
-from models.freelancer_information import *
+from app.models.freelancer_information import *
 from sqlalchemy.exc import SQLAlchemyError
 
 class FreelancerInformationRepository:

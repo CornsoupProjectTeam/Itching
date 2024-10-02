@@ -1,6 +1,6 @@
 # repository/identity_verification_repository.py
 
-from app.models.mysql_identity_verification import db, IdentityVerification
+from app.models.identity_verification import db, IdentityVerification
 from datetime import datetime
 
 class IdentityVerificationRepository:

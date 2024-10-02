@@ -1,6 +1,6 @@
 #login_service.py
 
-from app.domain.login_domain import validate_password
+from app.domain.login_domain import *
 from app.repositories.login_repository import LoginRepository
 from app.models.login import Login
 from flask import session

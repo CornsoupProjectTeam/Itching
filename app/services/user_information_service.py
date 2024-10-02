@@ -2,7 +2,7 @@ from flask import current_app
 import os
 from app.domain.user_information_domain import *
 from app.utils.image_upload import upload_image, delete_image
-from models.user_information import ClientPreferredFieldMapping, PreferredFreelancerMapping
+from app.models.user_information import ClientPreferredFieldMapping, PreferredFreelancerMapping
 
 class UserInformationService:
     def __init__(self, user_information_repository, user_id):
