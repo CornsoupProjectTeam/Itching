@@ -2,7 +2,7 @@ import re
 from dataclasses import dataclass
 from typing import Optional, List
 from datetime import datetime
-from models.user_information import ClientPreferredFieldMapping, PreferredFreelancerMapping
+from app.models.user_information import ClientPreferredFieldMapping, PreferredFreelancerMapping
 
 @dataclass
 class UserInformationDomain:

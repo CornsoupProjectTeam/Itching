@@ -4,7 +4,7 @@ from app.domain.freelancer_information_domain import *
 from app.services.user_information_service import update_freelancer_registration_state
 from app.utils.image_upload import upload_image, delete_image
 from app.utils.id_generator import generate_public_profile_id
-from models.freelancer_information import (
+from app.models.freelancer_information import (
     FreelancerExpertiseFieldMapping,
     FreelancerSkillMapping,
     FreelancerEducationMapping,

@@ -1,5 +1,6 @@
 from sqlalchemy.exc import SQLAlchemyError
-from models.freelancer_information import UserInformation, db, ClientPreferredFieldMapping, PreferredFreelancerMapping 
+from app.models.user_information import UserInformation, db, ClientPreferredFieldMapping, PreferredFreelancerMapping 
+from typing import Optional
 
 class UserInformationRepository:
 
