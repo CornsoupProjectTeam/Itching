@@ -1,3 +1,4 @@
+#. app/models/chat_room_master.py
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
@@ -14,6 +15,7 @@ class ChatRoomMaster(db.Model):
     is_blocked = db.Column(db.Boolean, default=False)
     is_new_notification = db.Column(db.Boolean, default=False)
     trade_st = db.Column(db.Enum('In progress', 'Completed'))
+    pin_st = db.Column(db.Boolean, default=False)
     support_language = db.Column(db.String(50))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

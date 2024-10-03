@@ -12,11 +12,13 @@
         <ul>
         {% for chat_room in chat_rooms %}
             <li>
-                채팅방 ID: {{ chat_room.chat_room_id }} <br>
-                마지막 메시지: {{ chat_room.last_message }} <br>
+                <strong>채팅방 ID:</strong> {{ chat_room.chat_room_id }} <br>
+                <strong>마지막 메시지:</strong> {{ chat_room.last_message }} <br>
                 <!-- 보낸 사람 클릭 시 chat_room으로 이동 -->
-                <a href="{{ url_for('chat_room_list.chat_room', chat_room_id=chat_room.chat_room_id) }}">보낸 사람: {{ chat_room.sender_id }}</a> <br>
-                마지막 업데이트: {{ chat_room.updated_at }}
+                <a href="{{ url_for('chat_room.chat_room', chat_room_id=chat_room.chat_room_id) }}">
+                    채팅방 입장 (보낸 사람: {{ chat_room.sender_id }})
+                </a> <br>
+                <strong>마지막 업데이트:</strong> {{ chat_room.updated_at }}
             </li>
         {% endfor %}
         </ul>

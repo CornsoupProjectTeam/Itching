@@ -1,8 +1,8 @@
 #payment_authentication_repository.py
 """payment_repository.py로 변경해주세요"""
 
-from app.models.mysql_payment import Payment
-from app.models.mysql_login import Login
+from app.models.payment import Payment
+from app.models.login import Login
 from app import db
 
 class PaymentRepository:
