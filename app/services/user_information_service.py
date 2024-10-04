@@ -8,7 +8,7 @@ class UserInformationService:
     def __init__(self, user_information_repository, user_id):
         self.user_information_repository = user_information_repository
         self.user_id = user_id
-        self.initialize_domain()
+        self.user_information_domain = self.initialize_domain()
 
     def initialize_domain(self):        
 
@@ -37,8 +37,9 @@ class UserInformationService:
                 created_at=user_info_data['created_at'],
                 updated_at=user_info_data['updated_at'],
                 preferred_fields=preferred_fields,
-                preferred_freelancer=preferred_freelancers
+                preferred_freelancers=preferred_freelancers
             )
+            return self.user_information_domain
         else:
             raise ValueError("사용자 정보를 찾을 수 없습니다.")
 
@@ -58,9 +59,9 @@ class UserInformationService:
                     {'user_id': field.user_id, 'preferred_code': field.field_code} 
                     for field in user_info.preferred_fields
                 ],
-                'preferred_freelancer': [
+                'preferred_freelancers': [
                     {'user_id': preferred_freelancer_item.user_id, 'preferred_code': preferred_freelancer_item.preferred_code} 
-                    for preferred_freelancer_item in user_info.preferred_freelancer
+                    for preferred_freelancer_item in user_info.preferred_freelancers
                 ],
                 'created_at': user_info.created_at,  
                 'updated_at': user_info.updated_at   
@@ -100,37 +101,37 @@ class UserInformationService:
             return {"success": False, "message": "비즈니스 정보 업데이트에 실패하였습니다."}
 
     # 선호 분야 변경
-    def change_preferred_field(self, preferred_codes: list) -> dict:
-        for preferred_code in preferred_codes:
-            preferred_field_mapping = ClientPreferredFieldMapping(
+    def change_preferred_field(self, field_codes: list) -> dict:
+        for field_code in field_codes:
+            field_codes_mapping = ClientPreferredFieldMapping(
                 user_id=self.user_information_domain.user_id,
-                preferred_code=preferred_code
+                field_code=field_code
             )
-            result = self.user_information_repository.save_preferred_field(preferred_field_mapping)
+            result = self.user_information_repository.save_preferred_field(field_codes_mapping)
             
             if result['success']:
-                self.user_information_domain.update_preferred_fields(preferred_field_mapping)
+                self.user_information_domain.update_preferred_fields(field_codes_mapping)
             else:
-                return {'success': False, 'message': f'{preferred_code} 선호 분야 저장에 실패했습니다.'}
+                return {'success': False, 'message': f'{field_code} 선호 분야 저장에 실패했습니다.'}
         
         return {'success': True, 'message': '선호 분야가 성공적으로 저장되었습니다.'}
 
     # 선호 분야 삭제
-    def delete_preferred_field(self, preferred_codes: list) -> dict:
-        for preferred_code in preferred_codes:
-            preferred_field_mapping = ClientPreferredFieldMapping(
+    def delete_preferred_field(self, field_codes: list) -> dict:
+        for field_code in field_codes:
+            field_codes_mapping = ClientPreferredFieldMapping(
                 user_id=self.user_information_domain.user_id,
-                preferred_code=preferred_code
+                field_code=field_code
             )
 
             # 선호 분야 삭제 로직 호출
-            result = self.user_information_repository.delete_preferred_field(preferred_field_mapping)
+            result = self.user_information_repository.delete_preferred_field(field_codes_mapping)
             
             if not result['success']:
-                return {'success': False, 'message': f'{preferred_code} 선호 분야 삭제에 실패했습니다.'}
+                return {'success': False, 'message': f'{field_code} 선호 분야 삭제에 실패했습니다.'}
             
             # 도메인 객체 업데이트
-            self.user_information_domain.remove_preferred_fields(preferred_field_mapping)
+            self.user_information_domain.remove_preferred_fields(field_codes_mapping)
 
         return {'success': True, 'message': '선호 분야가 성공적으로 삭제되었습니다.'}
 
@@ -245,7 +246,7 @@ class UserInformationService:
         return self.user_information_domain.freelancer_registration_st
 
     # 프리랜서 등록 상태 업데이트
-    def change_freelancer_registration_state(self, is_registered: bool) -> dict:
+    def change_freelancer_registration_state(self,user_id, is_registered: bool) -> dict:
         result = self.user_information_repository.update_freelancer_registration_state(self.user_id, is_registered)
         
         if result['success']:
@@ -255,6 +256,7 @@ class UserInformationService:
             return {'success': False}
 
     # 문의 상태 확인
+    @staticmethod
     def confirm_inquiry_state(self) -> bool:
         return self.user_information_domain.inquiry_st
     
@@ -267,3 +269,12 @@ class UserInformationService:
             return {'success': True}
         else:
             return {'success': False}
+    
+    # 닉네임 검색
+    def get_nickname_by_user_id(self, user_id):
+        # 유저 ID로 닉네임을 가져옴
+        nickname = self.user_information_repository.get_nickname_by_user_id(user_id)
+        
+        if not nickname:
+            return None  # 닉네임이 없을 경우 None 반환
+        return nickname  # 닉네임만 반환

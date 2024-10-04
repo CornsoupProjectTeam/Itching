@@ -1,35 +1,82 @@
 from app.models.freelancer_information import *
 from sqlalchemy.exc import SQLAlchemyError
 
-class FreelancerInformationRepository:
+class FreelancerRegistrationRepository:
 
-    def get_public_profile_with_mappings(self, user_id):
-            try:
-                public_profile = PublicProfile.query.filter_by(user_id=user_id).first()
-                if not public_profile:
-                    return {'success': False, 'message': 'Public profile이 없습니다.'}
+    # user_id로 public_profile 존재 여부를 확인하는 메서드
+    def has_public_profile(self, user_id):
+        try:
+            public_profile = PublicProfile.query.filter_by(user_id=user_id).first()
+            
+            # 프로필이 존재하면 success와 함께 public_profile_id 반환, 없으면 False 반환
+            if public_profile:
+                return {'success': True, 'public_profile_id': public_profile.public_profile_id}
+            else:
+                return {'success': False, 'message': '공개 프로필이 없습니다.'}
+        
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            return {'success': False, 'message': str(e)}
+    # public_profile_id로 공개 프로필과 세부 정보 가져오는 메서드
+    def get_public_profile_for_registration(self, public_profile_id):
+        try:
+            print(f"Fetching public profile for public_profile_id: {public_profile_id}")  # 로그 추가
+            
+            # public_profile을 가져옴
+            public_profile = PublicProfile.query.filter_by(public_profile_id=public_profile_id).first()
+            
+            print(f"Retrieved public profile: {public_profile}")  # 로그 추가
+            
+            if not public_profile:
+                print("No public profile found")  # 로그 추가
+                return {'success': False, 'message': '해당 public_profile_id로 공개 프로필을 찾을 수 없습니다.'}
 
-                # PublicProfile_registaration과 관련된 맵핑 데이터를 가져옴
-                expertise_fields = FreelancerExpertiseFieldMapping.query.filter_by(public_profile_id=public_profile.public_profile_id).all()
-                skill_codes = FreelancerSkillMapping.query.filter_by(public_profile_id=public_profile.public_profile_id).all()
-                educations = FreelancerEducationMapping.query.filter_by(public_profile_id=public_profile.public_profile_id).all()
-                careers = FreelancerCareerMapping.query.filter_by(public_profile_id=public_profile.public_profile_id).all()
-                portfolios = FreelancerPortfolioMapping.query.filter_by(public_profile_id=public_profile.public_profile_id).all()
+            # 각 맵핑 테이블에서 public_profile_id를 기준으로 데이터 가져옴
+            expertise_fields = FreelancerExpertiseFieldMapping.query.filter_by(public_profile_id=public_profile_id).all()
+            print(f"Expertise fields: {expertise_fields}")  # 로그 추가
 
-                # 데이터 반환
-                return {
-                    'success': True,
-                    'profile': public_profile,
-                    'expertise_fields': expertise_fields,
-                    'skill_codes': skill_codes,
-                    'educations': educations,
-                    'careers': careers,
-                    'portfolios': portfolios
-                }
+            skill_codes = FreelancerSkillMapping.query.filter_by(public_profile_id=public_profile_id).all()
+            print(f"Skill codes: {skill_codes}")  # 로그 추가
 
-            except SQLAlchemyError as e:
-                db.session.rollback()
-                return {'success': False, 'message': str(e)}
+            educations = FreelancerEducationMapping.query.filter_by(public_profile_id=public_profile_id).all()
+            print(f"Educations: {educations}")  # 로그 추가
+
+            careers = FreelancerCareerMapping.query.filter_by(public_profile_id=public_profile_id).all()
+            print(f"Careers: {careers}")  # 로그 추가
+
+            portfolios = FreelancerPortfolioMapping.query.filter_by(public_profile_id=public_profile_id).all()
+            print(f"Portfolios: {portfolios}")  # 로그 추가
+
+            # 공개 프로필과 함께 세부 데이터 반환
+            return {
+                'success': True,
+                'profile': public_profile,
+                'expertise_fields': expertise_fields,
+                'skill_codes': skill_codes,
+                'educations': educations,
+                'careers': careers,
+                'portfolios': portfolios
+            }
+        
+        except SQLAlchemyError as e:
+            print(f"SQLAlchemyError occurred: {e}")  # 로그 추가
+            db.session.rollback()
+            return {'success': False, 'message': str(e)}
+
+    def create_new_public_profile(self, profile_data: dict) -> dict:
+        try:
+            # 새로운 공개 프로필 생성
+            new_profile = PublicProfile(
+                public_profile_id=profile_data['public_profile_id'],
+                user_id=profile_data['user_id'],
+                nickname=profile_data['nickname']
+            )
+            db.session.add(new_profile)
+            db.session.commit()
+            return {'success': True, 'message': '공개 프로필이 성공적으로 생성되었습니다.'}
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            return {'success': False, 'message': str(e)}
 
     def save_profile_picture_path(self, public_profile_id: str, new_filepath: str) -> dict:
         try:        
