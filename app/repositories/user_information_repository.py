@@ -239,9 +239,9 @@ class UserInformationRepository:
         except SQLAlchemyError as e:
             db.session.rollback()
             return {'success': False, 'message': str(e)}
-        
-    def check_freelancer_registration(self, user_id: str) -> bool:
-        # 주어진 user_id의 프리랜서 등록 상태를 확인
+    
+    # 주어진 user_id의 프리랜서 등록 상태를 확인
+    def check_freelancer_registration(self, user_id: str) -> bool:        
         try:
             user_info = UserInformation.query.filter_by(user_id=user_id).first()
             if user_info:
@@ -251,9 +251,9 @@ class UserInformationRepository:
             db.session.rollback()  
             return {'success': False, 'message': str(e)} 
     
+    # 주어진 user_id의 정보를 조회
     def update_freelancer_registration_state(self, user_id: str, is_registered: bool) -> dict:
-        try:
-            # 주어진 user_id의 정보를 조회
+        try:            
             user_info = UserInformation.query.filter_by(user_id=user_id).first()
             if user_info:                
                 user_info.freelancer_registration_st = is_registered
@@ -263,3 +263,16 @@ class UserInformationRepository:
         except SQLAlchemyError as e:
             db.session.rollback()  
             return {'success': False, 'message': str(e)} 
+    
+    # 유저 ID로 닉네임을 조회
+    def get_nickname_by_user_id(self, user_id):
+        try:
+            result = db.session.query(UserInformation.nickname).filter_by(user_id=user_id).first()
+            if result:
+                # 닉네임만 반환
+                return result.nickname
+            return None
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            raise ValueError(f"SQLAlchemyError occurred: {e}")
+

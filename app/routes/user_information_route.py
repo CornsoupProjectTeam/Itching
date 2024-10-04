@@ -2,7 +2,6 @@ from flask import Blueprint, request, jsonify, g
 from app.services.user_information_service import UserInformationService
 from app.repositories.user_information_repository import UserInformationRepository
 from app.services.login_service import LoginService
-from app.repositories.login_repository import LoginRepository
 
 user_information_bp = Blueprint('user_information', __name__, url_prefix='/profile/user_information')
 

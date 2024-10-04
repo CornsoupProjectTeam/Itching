@@ -8,7 +8,7 @@ class UserInformationService:
     def __init__(self, user_information_repository, user_id):
         self.user_information_repository = user_information_repository
         self.user_id = user_id
-        self.initialize_domain()
+        self.user_information_domain = self.initialize_domain()
 
     def initialize_domain(self):        
 
@@ -39,6 +39,7 @@ class UserInformationService:
                 preferred_fields=preferred_fields,
                 preferred_freelancers=preferred_freelancers
             )
+            return self.user_information_domain
         else:
             raise ValueError("사용자 정보를 찾을 수 없습니다.")
 
@@ -58,9 +59,9 @@ class UserInformationService:
                     {'user_id': field.user_id, 'preferred_code': field.field_code} 
                     for field in user_info.preferred_fields
                 ],
-                'preferred_freelancer': [
+                'preferred_freelancers': [
                     {'user_id': preferred_freelancer_item.user_id, 'preferred_code': preferred_freelancer_item.preferred_code} 
-                    for preferred_freelancer_item in user_info.preferred_freelancer
+                    for preferred_freelancer_item in user_info.preferred_freelancers
                 ],
                 'created_at': user_info.created_at,  
                 'updated_at': user_info.updated_at   
@@ -245,7 +246,7 @@ class UserInformationService:
         return self.user_information_domain.freelancer_registration_st
 
     # 프리랜서 등록 상태 업데이트
-    def change_freelancer_registration_state(self, is_registered: bool) -> dict:
+    def change_freelancer_registration_state(self,user_id, is_registered: bool) -> dict:
         result = self.user_information_repository.update_freelancer_registration_state(self.user_id, is_registered)
         
         if result['success']:
@@ -255,6 +256,7 @@ class UserInformationService:
             return {'success': False}
 
     # 문의 상태 확인
+    @staticmethod
     def confirm_inquiry_state(self) -> bool:
         return self.user_information_domain.inquiry_st
     
@@ -267,3 +269,12 @@ class UserInformationService:
             return {'success': True}
         else:
             return {'success': False}
+    
+    # 닉네임 검색
+    def get_nickname_by_user_id(self, user_id):
+        # 유저 ID로 닉네임을 가져옴
+        nickname = self.user_information_repository.get_nickname_by_user_id(user_id)
+        
+        if not nickname:
+            return None  # 닉네임이 없을 경우 None 반환
+        return nickname  # 닉네임만 반환
