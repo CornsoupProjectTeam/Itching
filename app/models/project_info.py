@@ -1,3 +1,4 @@
+#modles/project_info.py
 from app import db
 from datetime import datetime
 
@@ -20,6 +21,10 @@ class ProjectInfo(db.Model):
     additional_info = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+
+    # Use a string to refer to the ProjectList class to avoid circular import issues
+    project_list = db.relationship('ProjectList', back_populates='project_info', uselist=False)
+
     public_profile = db.relationship('PublicProfile', backref=db.backref('projects_info', lazy=True, cascade="all, delete-orphan"))
     field_keywords = db.relationship('FieldKeywords', backref=db.backref('projects', lazy=True, cascade="all, delete-orphan"))
+

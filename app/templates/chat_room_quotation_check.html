@@ -1,0 +1,47 @@
+<!-- chat_room_quotation_check.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>견적서 확인</title>
+</head>
+<body>
+    <h2>제출된 견적서 확인</h2>
+
+    <p><strong>클라이언트 요구사항:</strong> {{ data.client_requirements }}</p>
+    <p><strong>견적 금액:</strong> {{ data.quotation }} ₩</p>
+    <p><strong>시안 갯수:</strong> {{ data.number_of_drafts }}</p>
+    <p><strong>제작 마감일:</strong> {{ data.final_deadline }}</p>
+    <p><strong>중간 컨펌날:</strong> {{ data.midterm_check }}</p>
+    <p><strong>수정 횟수:</strong> {{ data.revision_count }}</p>
+    <p><strong>추가 수정 구매 가능 여부:</strong> {{ '예' if data.additional_revision_available else '아니오' }}</p>
+    <p><strong>상업적 이용 가능 여부:</strong> {{ '예' if data.commercial_use_allowed else '아니오' }}</p>
+    <p><strong>고해상도 파일 제공 가능 여부:</strong> {{ '예' if data.high_resolution_file_available else '아니오' }}</p>
+    <p><strong>제공 경로:</strong> {{ data.delivery_route }}</p>
+</body>
+</html>
+
+<!-- 견적서 수정 버튼 -->
+<form action="/chatroom/quotation/" method="GET">
+    <input type="submit" value="견적서 수정">
+</form>
+
+<!-- chat_room_quotation_check.html -->
+<form action="/chatroom/quotation/send" method="POST">
+    <input type="hidden" name="quotation_id" value="{{ actual_quotation_id }}">
+    <input type="hidden" name="chat_room_id" value="CHf47ac10-58c7-4d4c-bb4d-0a23b45f7f56">
+    <input type="hidden" name="client_user_id" value="ujin6666">
+    <input type="hidden" name="freelancer_user_id" value="joo1234">
+    <input type="hidden" name="quotation" value="{{ data.quotation }}">
+    <input type="hidden" name="number_of_drafts" value="{{ data.number_of_drafts }}">
+    <input type="hidden" name="final_deadline" value="{{ data.final_deadline }}">
+    <input type="hidden" name="midterm_check" value="{{ data.midterm_check }}">
+    <input type="hidden" name="revision_count" value="{{ data.revision_count }}">
+    <input type="hidden" name="additional_revision_available" value="{{ data.additional_revision_available }}">
+    <input type="hidden" name="commercial_use_allowed" value="{{ data.commercial_use_allowed }}">
+    <input type="hidden" name="high_resolution_file_available" value="{{ data.high_resolution_file_available }}">
+    <input type="hidden" name="delivery_route" value="{{ data.delivery_route }}">
+    
+    <input type="submit" value="견적서 전송">
+</form>
