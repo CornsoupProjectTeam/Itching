@@ -20,14 +20,18 @@ app.config['UPLOAD_FOLDER'] = os.path.join(app_dir, 'uploaded_images')
 # 루트 디렉터리의 config.py에서 설정 가져오기
 app.config.from_object('config.DevelopmentConfig')
 
+# SQLAlchemy 쿼리 로그 활성화
+#app.config['SQLALCHEMY_ECHO'] = True
+
+# SQLAlchemy 및 기타 로그 설정
+#logging.basicConfig()
+#logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+
 CORS(app)
 
 db = SQLAlchemy(app)
 mongo = PyMongo(app)
 mail = Mail(app)
-
-# 환경 변수에서 세션에 사용하는 SECRET_KEY 가져오기
-app.secret_key = os.getenv('SECRET_KEY')
 
 # 보안 설정
 app.config['SESSION_COOKIE_HTTPONLY'] = True

@@ -1,8 +1,5 @@
-#app/models/project_info.py
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-
-db = SQLAlchemy()
 
 class ProjectInfo(db.Model):
     __tablename__ = 'PROJECT_INFO'

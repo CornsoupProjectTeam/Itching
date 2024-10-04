@@ -1,8 +1,5 @@
-#. app/models/chat_room_master.py
-from flask_sqlalchemy import SQLAlchemy
+from app import db
 from datetime import datetime
-
-db = SQLAlchemy()
 
 class ChatRoomMaster(db.Model):
     __tablename__ = 'CHAT_ROOM_MASTER'

@@ -9,6 +9,7 @@ class Config:
     # MySQL 데이터베이스 설정
     SQLALCHEMY_DATABASE_URI = os.getenv('MYSQL_DATABASE_URI')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    #DEBUG = True  # 디버그 모드 활성화
 
     # MongoDB 설정
     MONGO_URI = os.getenv('MONGO_URI')
