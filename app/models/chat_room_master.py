@@ -1,3 +1,4 @@
+#app/models/chat_room_master.py
 from app import db
 from datetime import datetime
 

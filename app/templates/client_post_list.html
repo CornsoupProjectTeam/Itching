@@ -1,0 +1,40 @@
+<!-- templates/client_post_list.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>클라이언트 게시물 목록</title>
+</head>
+<body>
+    <h1>클라이언트 게시물 목록</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>게시물 ID</th>
+                <th>클라이언트 ID</th>
+                <th>분야 코드</th>
+                <th>게시물 제목</th>
+                <th>결제 금액 (₩)</th>
+                <th>희망 마감일</th>
+                <th>생성일</th>
+                <th>수정일</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for post in client_posts %}
+            <tr>
+                <td>{{ post.client_post_id }}</td>
+                <td>{{ post.client_user_id }}</td>
+                <td>{{ post.field_code }}</td>
+                <td>{{ post.title }}</td>
+                <td>{{ post.payment_amount }}</td>
+                <td>{{ post.desired_deadline }}</td>
+                <td>{{ post.created_at }}</td>
+                <td>{{ post.updated_at }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

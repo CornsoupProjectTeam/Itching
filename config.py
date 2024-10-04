@@ -16,7 +16,7 @@ class Config:
     connect(host=MONGO_URI, alias='default')
 
     # Flask Secret Key (세션 관리, CSRF 방지 등)
-    # SECRET_KEY = os.getenv('SECRET_KEY')
+    SECRET_KEY = os.getenv('SECRET_KEY')
 
 # 개발 환경을 위한 추가 설정
 class DevelopmentConfig(Config):

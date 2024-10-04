@@ -31,5 +31,6 @@ from app.models.chat_room_scanner import ChatRoomScanner
 from app.models.pretest_condition import PretestCondition
 from app.models.pretest_scanner_requirement import PretestScannerRequirement
 from app.models.chat_room_scanner_requirement import ChatRoomScannerRequirement
-
+from app.models.project_info import ProjectInfo
+from app.models.project_list import ProjectList
 

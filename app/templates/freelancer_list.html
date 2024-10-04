@@ -1,0 +1,38 @@
+<!-- templates/freelancer_list.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프리랜서 탐색</title>
+</head>
+<body>
+    <h1>프리랜서 탐색</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>프로필 ID</th>
+                <th>닉네임</th>
+                <th>등급</th>
+                <th>매치 수</th>
+                <th>평균 응답 시간</th>
+                <th>평점</th>
+                <th>등록일</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for freelancer in freelancers %}
+            <tr>
+                <td>{{ freelancer.public_profile_id }}</td>
+                <td>{{ freelancer.nickname }}</td>
+                <td>{{ freelancer.freelancer_badge.value }}</td>
+                <td>{{ freelancer.match_count }}</td>
+                <td>{{ freelancer.avg_response_time }} 시간</td>
+                <td>{{ freelancer.avg_rating }}</td>
+                <td>{{ freelancer.registration_date }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

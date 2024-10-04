@@ -1,4 +1,5 @@
-from flask_sqlalchemy import SQLAlchemy
+#modles/project_info.py
+from app import db
 from datetime import datetime
 
 class ProjectInfo(db.Model):
