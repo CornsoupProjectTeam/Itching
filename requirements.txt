@@ -17,3 +17,7 @@ Flask-OAuthlib
 bcrypt
 requests
 mysql-connector-python
+Flask-Mail==0.10.0
+Flask-SocketIO==5.4.
+Flask-Migrate==4.0.7
+eventlet==0.37.0

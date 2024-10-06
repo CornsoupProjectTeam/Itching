@@ -59,3 +59,6 @@ app.register_blueprint(freelancer_bp, url_prefix='/freelancers')
 # 클라이언트 게시물 관련 블루프린트 추가
 from app.routes.client_post_routes import client_post_bp
 app.register_blueprint(client_post_bp, url_prefix='/client_posts')
+
+from app.routes.image_upload import image_upload_bp
+app.register_blueprint(image_upload_bp)
