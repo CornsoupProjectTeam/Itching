@@ -1,7 +1,6 @@
-from flask_sqlalchemy import SQLAlchemy
+#app/modles/chat_room_quotation.py
+from app import db
 from datetime import datetime
-
-db = SQLAlchemy()
 
 class ChatRoomQuotation(db.Model):
     __tablename__ = 'CHAT_ROOM_QUOTATION'

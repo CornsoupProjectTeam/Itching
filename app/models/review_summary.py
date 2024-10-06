@@ -1,6 +1,4 @@
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from app import db
 
 class ReviewSummary(db.Model):
     __tablename__ = 'REVIEW_SUMMARY'

@@ -1,0 +1,51 @@
+<!-- chat_room_quotation.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>견적서 관리 폼</title>
+</head>
+<body>
+    <h2>견적서 관리 폼</h2>
+    
+    <!-- 견적서 제출 폼 -->
+    <form action="/chatroom/quotation/check" method="POST">
+        <label for="client_requirements">클라이언트 요구사항:</label>
+        <textarea id="client_requirements" name="client_requirements" rows="4" cols="50" required></textarea><br><br>
+
+        <label for="quotation">견적 금액 (₩):</label>
+        <input type="number" id="quotation" name="quotation" step="0.01" required><br><br>
+
+        <label for="number_of_drafts">시안 갯수:</label>
+        <input type="number" id="number_of_drafts" name="number_of_drafts" required><br><br>
+
+        <label for="final_deadline">제작 마감일 (YYYY-MM-DD):</label>
+        <input type="date" id="final_deadline" name="final_deadline" required><br><br>
+
+        <label for="midterm_check">중간 컨펌날 (YYYY-MM-DD):</label>
+        <input type="date" id="midterm_check" name="midterm_check" required><br><br>
+
+        <label for="revision_count">수정 횟수:</label>
+        <input type="number" id="revision_count" name="revision_count" required><br><br>
+
+        <label for="additional_revision_purchase_available">추가 수정 구매 가능 여부:</label>
+        <input type="checkbox" id="additional_revision_purchase_available" name="additional_revision_purchase_available" value="1"><br><br>
+
+        <label for="commercial_use_allowed">상업적 이용 가능 여부:</label>
+        <input type="checkbox" id="commercial_use_allowed" name="commercial_use_allowed" value="1"><br><br>
+
+        <label for="high_resolution_file_available">고해상도 파일 제공 가능 여부:</label>
+        <input type="checkbox" id="high_resolution_file_available" name="high_resolution_file_available" value="1"><br><br>
+
+        <label for="delivery_route">제공 경로:</label>
+        <textarea id="delivery_route" name="delivery_route" rows="4" cols="50"></textarea><br><br>
+
+        <input type="submit" value="견적서 제출">
+    </form>
+
+
+</body>
+</html>
+
+

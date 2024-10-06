@@ -16,3 +16,4 @@ authlib
 Flask-OAuthlib
 bcrypt
 requests
+mysql-connector-python

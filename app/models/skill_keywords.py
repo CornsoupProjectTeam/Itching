@@ -1,6 +1,4 @@
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from app import db
 
 class SkillKeywords(db.Model):
     __tablename__ = 'SKILL_KEYWORDS'
