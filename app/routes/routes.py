@@ -7,6 +7,7 @@ from app.routes.login_route import login_bp
 from app.routes.payment_authentication_route import payment_authentication_bp
 from app.routes.identitiy_verification_route import identity_verification_bp
 from app.routes.freelancer_registration_route import freelancer_registration_bp
+from app.routes.freelancer_information_route import freelancer_information_bp
 
 def init_routes(app):
     app.register_blueprint(test_api_bp)
@@ -17,3 +18,4 @@ def init_routes(app):
     app.register_blueprint(payment_authentication_bp)
     app.register_blueprint(identity_verification_bp)
     app.register_blueprint(freelancer_registration_bp)
+    app.register_blueprint(freelancer_information_bp)
