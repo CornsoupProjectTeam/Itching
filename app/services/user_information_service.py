@@ -13,7 +13,7 @@ class UserInformationService:
     def initialize_domain(self):        
 
         # 레포지토리에서 데이터를 가져와 도메인 객체 초기화
-        user_info_data = self.user_information_repository.get_user_info_by_user_id(self.user_id)
+        user_info_data = self.user_information_repository.get_user_info_by_user_id(self.user_id)        
 
         if user_info_data and user_info_data.get('success'):
             user_info_data = user_info_data['user_info']
@@ -242,7 +242,7 @@ class UserInformationService:
             return {'success': False, 'message': '사용자 등록에 실패했습니다.'}
 
     # 프리랜서 등록 상태 확인
-    def confirm_freelancer_registration(self) -> bool:
+    def confirm_freelancer_registration(self, user_id) -> bool:
         return self.user_information_domain.freelancer_registration_st
 
     # 프리랜서 등록 상태 업데이트

@@ -21,6 +21,16 @@ def get_user_information(user_id):
     else:
         return jsonify({'success': False, 'message': '사용자 정보를 찾을 수 없습니다.'}), 404
 
+# GET /profile/user_information/{user_id}/freelancer-registration-state
+@user_information_bp.route('/<user_id>/freelancer-registration-state', methods=['GET'])
+def check_freelancer_registration_state(user_id):
+    freelancer_registration_state = g.user_information_service.confirm_freelancer_registration(user_id)
+
+    if freelancer_registration_state:
+        return jsonify({'freelancer_registration_state': freelancer_registration_state}), 200
+    else:
+        return jsonify({'success': False, 'message': '프리랜서 등록여부를 확인할 수 없습니다.'}), 404
+
 # POST 또는 DELETE /profile/user_information/{user_id}/profile-picture
 @user_information_bp.route('/<user_id>/profile-picture', methods=['POST', 'DELETE'])
 def update_profile_picture(user_id):
