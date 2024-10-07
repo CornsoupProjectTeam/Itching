@@ -164,7 +164,7 @@ def update_portfolios(user_id):
 # GET /profile/freelancer/{user_id}/register/complete
 # 프리랜서 등록의 필수 항목이 모두 저장되었는지 확인
 @freelancer_registration_bp.route('/<user_id>/register/complete', methods=['GET'])
-def check_registration_complete(user_id):
+def freelancer_registration(user_id):
     result = g.freelancer_registration_service.registration_complete(user_id)
     
     return jsonify(result)
