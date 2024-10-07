@@ -108,10 +108,10 @@ class PreferredWorkStyleMapping(db.Model):
     __tablename__ = 'PREFERRED_WORK_STYLE_MAPPING'
     
     public_profile_id = db.Column(db.String(50), db.ForeignKey('PUBLIC_PROFILE.public_profile_id', ondelete='CASCADE'), primary_key=True)
-    preferred_code = db.Column(db.String(20), db.ForeignKey('FIELD_KEYWORDS.field_code', ondelete='CASCADE'), primary_key=True)
+    preferred_code = db.Column(db.String(20), db.ForeignKey('PREFERRED_KEYWORDS.preferred_code', ondelete='CASCADE'), primary_key=True)
 
     public_profile = db.relationship('PublicProfile', backref=db.backref('preferred_work_styles', lazy=True, cascade="all, delete-orphan"))
-    field_keywords = db.relationship('FieldKeywords', backref=db.backref('preferred_work_style_mappings', lazy=True, cascade="all, delete-orphan"))
+    preferred_keyword = db.relationship('PreferredKeywords', backref=db.backref('preferred_work_style_mappings', lazy=True, cascade="all, delete-orphan"))
 
 class FreelancerAccountInfo(db.Model):
     __tablename__ = 'FREELANCER_ACCOUNT_INFO'
@@ -123,3 +123,27 @@ class FreelancerAccountInfo(db.Model):
     account_type = db.Column(db.Enum('Personal', 'Corporation'), nullable=False)
     
     public_profile = db.relationship('PublicProfile', backref=db.backref('account_info', uselist=False, cascade="all, delete-orphan"))
+
+class Review(db.Model):
+    __tablename__ = 'REVIEW'
+    
+    sequence = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    public_profile_id = db.Column(db.String(50), db.ForeignKey('PUBLIC_PROFILE.public_profile_id', ondelete='CASCADE'), nullable=False)
+    client_user_id = db.Column(db.String(20), db.ForeignKey('USER_INFORMATION.user_id', ondelete='CASCADE'), nullable=False)
+    review_title = db.Column(db.String(100), nullable=False)
+    review_text = db.Column(db.Text)
+    rating = db.Column(db.Integer, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    public_profile = db.relationship('PublicProfile', backref=db.backref('reviews', lazy=True, cascade="all, delete-orphan"))
+    client_user = db.relationship('UserInformation', backref=db.backref('client_reviews', lazy=True, cascade="all, delete-orphan"))
+
+class ReviewSummary(db.Model):
+    __tablename__ = 'REVIEW_SUMMARY'
+    
+    public_profile_id = db.Column(db.String(50), db.ForeignKey('PUBLIC_PROFILE.public_profile_id', ondelete='CASCADE'), primary_key=True)
+    total_reviews = db.Column(db.Integer, default=0)
+    average_rating = db.Column(db.Numeric(3, 2), default=0.00)
+    
+    public_profile = db.relationship('PublicProfile', backref=db.backref('review_summary', uselist=False, cascade="all, delete-orphan"))
