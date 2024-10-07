@@ -57,8 +57,8 @@ class FreelancerRegistrationService:
                     careers=[],
                     sns_link=None,
                     portfolios=[],
-                    created_at=datetime.utcnow(),
-                    updated_at=datetime.utcnow()
+                    freelancer_registration_date=None,
+                    freelancer_badge=None
                 )
             else:                
                 raise ValueError('공개 프로필 생성에 실패하였습니다.')
@@ -92,8 +92,8 @@ class FreelancerRegistrationService:
                 careers=careers,
                 sns_link=public_profile.sns_link,
                 portfolios=portfolios,
-                created_at=public_profile.created_at,
-                updated_at=public_profile.updated_at
+                freelancer_registration_date = public_profile.freelancer_registration_date,
+                freelancer_badge = public_profile.freelancer_badge
             )
         
         return self.domain
@@ -143,8 +143,8 @@ class FreelancerRegistrationService:
                     } for portfolio in profile.portfolios
                 ],
                 "sns_link": profile.sns_link,
-                "created_at": profile.created_at,
-                "updated_at": profile.updated_at
+                "freelancer_registration_date" : profile.freelancer_registration_date,
+                "freelancer_badge" : profile.freelancer_badge
             }
         else:
             return None
@@ -403,6 +403,41 @@ class FreelancerRegistrationService:
                 "message": "필수 등록 정보가 누락되었습니다."
             }
         
+        result = self.repository.save_registration_date(self.domain.public_profile_id)
+        if not result['success']:
+            return result
+
+        registration_date_str = result['registration_date']
+
+        # 문자열을 datetime 객체로 변환 (추가적인 타임존 변환 필요 없음)
+        registration_date = datetime.strptime(registration_date_str, '%Y-%m-%d %H:%M:%S')
+
+        # 도메인 메서드에 변환된 datetime 객체 전달
+        self.domain.update_registration_date(registration_date=registration_date)
+        
+        # 프리랜서 등록 상태 변경
+        result = self.user_information_service.change_freelancer_registration_state(user_id, True)
+        if not result['success']:
+            return {
+                "success": False,
+                "message": "프리랜서 등록 상태 변경에 실패했습니다."
+            }
+        
+        # PublicProfileList에 새로운 행 추가
+        create_result = self.repository.create_public_profile_list(
+            public_profile_id=profile.public_profile_id,
+            nickname=profile.nickname,
+            profile_image_path=profile.profile_image_path,
+            freelancer_registration_date=registration_date,
+            freelancer_badge=profile.freelancer_badge
+        )
+        
+        if not create_result['success']:
+            return {
+                "success": False,
+                "message": "PublicProfileList 생성에 실패했습니다."
+            }
+
         # 모든 필수 필드가 채워진 경우 모든 정보를 반환
         return {
             "success": True,
@@ -438,7 +473,7 @@ class FreelancerRegistrationService:
                         'company': career.company,
                         'role': career.role,
                         'duration': career.duration
-                    } for career in profile.careers  # 여기서 딕셔너리로 변환
+                    } for career in profile.careers
                 ],
                 "portfolios": [
                     {
@@ -448,8 +483,8 @@ class FreelancerRegistrationService:
                     } for portfolio in profile.portfolios
                 ],
                 "sns_link": profile.sns_link,
-                "created_at": profile.created_at,
-                "updated_at": profile.updated_at
+                "freelancer_registration_date" : profile.freelancer_registration_date,
+                "freelancer_badge" : profile.freelancer_badge
             }
         }
 

@@ -1,4 +1,6 @@
 from app.models.freelancer_information import *
+from datetime import datetime
+import pytz
 from sqlalchemy.exc import SQLAlchemyError
 
 class FreelancerRegistrationRepository:
@@ -17,35 +19,27 @@ class FreelancerRegistrationRepository:
         except SQLAlchemyError as e:
             db.session.rollback()
             return {'success': False, 'message': str(e)}
+    
     # public_profile_id로 공개 프로필과 세부 정보 가져오는 메서드
     def get_public_profile_for_registration(self, public_profile_id):
-        try:
-            print(f"Fetching public profile for public_profile_id: {public_profile_id}")  # 로그 추가
-            
+        try:          
             # public_profile을 가져옴
             public_profile = PublicProfile.query.filter_by(public_profile_id=public_profile_id).first()
             
-            print(f"Retrieved public profile: {public_profile}")  # 로그 추가
-            
-            if not public_profile:
-                print("No public profile found")  # 로그 추가
-                return {'success': False, 'message': '해당 public_profile_id로 공개 프로필을 찾을 수 없습니다.'}
+            if not public_profile:                
+                return {'success': False, 'message': '공개 프로필을 찾을 수 없습니다.'}
 
             # 각 맵핑 테이블에서 public_profile_id를 기준으로 데이터 가져옴
             expertise_fields = FreelancerExpertiseFieldMapping.query.filter_by(public_profile_id=public_profile_id).all()
-            print(f"Expertise fields: {expertise_fields}")  # 로그 추가
 
             skill_codes = FreelancerSkillMapping.query.filter_by(public_profile_id=public_profile_id).all()
-            print(f"Skill codes: {skill_codes}")  # 로그 추가
-
+        
             educations = FreelancerEducationMapping.query.filter_by(public_profile_id=public_profile_id).all()
-            print(f"Educations: {educations}")  # 로그 추가
 
             careers = FreelancerCareerMapping.query.filter_by(public_profile_id=public_profile_id).all()
-            print(f"Careers: {careers}")  # 로그 추가
-
+        
             portfolios = FreelancerPortfolioMapping.query.filter_by(public_profile_id=public_profile_id).all()
-            print(f"Portfolios: {portfolios}")  # 로그 추가
+            
 
             # 공개 프로필과 함께 세부 데이터 반환
             return {
@@ -59,7 +53,6 @@ class FreelancerRegistrationRepository:
             }
         
         except SQLAlchemyError as e:
-            print(f"SQLAlchemyError occurred: {e}")  # 로그 추가
             db.session.rollback()
             return {'success': False, 'message': str(e)}
 
@@ -82,10 +75,18 @@ class FreelancerRegistrationRepository:
         try:        
             public_profile = PublicProfile.query.filter_by(public_profile_id=public_profile_id).first()
 
-            if public_profile:                
+            if public_profile:
+                # PublicProfile의 profile_image_path 업데이트                
                 public_profile.profile_image_path = new_filepath
+
+                # PublicProfileList의 profile_image_path 업데이트
+                public_profile_list = PublicProfileList.query.filter_by(public_profile_id=public_profile_id).first()
+                if public_profile_list:
+                    public_profile_list.profile_image_path = new_filepath
+                
                 db.session.commit()
                 return {'success': True}
+            
             return {'success': False, 'message': 'Public profile이 없습니다.'}
         except SQLAlchemyError as e:
             db.session.rollback()
@@ -231,3 +232,46 @@ class FreelancerRegistrationRepository:
         except SQLAlchemyError as e:
             db.session.rollback()
             return {'success': False, 'message': str(e)}
+    
+    def save_registration_date(self, public_profile_id):
+        try:
+            public_profile = PublicProfile.query.filter_by(public_profile_id=public_profile_id).first()
+            if public_profile:
+                # 현재 UTC 시간 가져오기
+                utc_now = datetime.utcnow()
+                
+                # UTC 시간을 한국 시간으로 변환
+                korean_tz = pytz.timezone('Asia/Seoul')
+                korean_time = utc_now.replace(tzinfo=pytz.utc).astimezone(korean_tz)
+                
+                # 한국 시간으로 freelancer_registration_date 저장
+                public_profile.freelancer_registration_date = korean_time
+                formatted_time = korean_time.strftime('%Y-%m-%d %H:%M:%S')
+                
+                # 세션 커밋
+                db.session.commit()
+                return {'success': True, 'registration_date': formatted_time}
+            return {'success': False, 'message': 'Public profile이 없습니다.'}
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            return {'success': False, 'message': str(e)}
+    
+    # PublicProfileList 생성
+    def create_public_profile_list(self, public_profile_id, nickname, profile_image_path, freelancer_registration_date, freelancer_badge):
+        try:
+            # 새로운 PublicProfileList 객체 생성
+            public_profile_list = PublicProfileList(
+                public_profile_id=public_profile_id,
+                nickname=nickname,
+                profile_image_path=profile_image_path,
+                freelancer_registration_date=freelancer_registration_date,
+                freelancer_badge=freelancer_badge
+            )
+            
+            db.session.add(public_profile_list)
+            db.session.commit()
+            
+            return {"success": True, "message": "PublicProfileList가 성공적으로 생성되었습니다."}
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            return {"success": False, "message": f"PublicProfileList 생성에 실패했습니다: {str(e)}"}

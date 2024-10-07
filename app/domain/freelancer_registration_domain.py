@@ -22,8 +22,8 @@ class FreelancerRegistrationDomain:
     careers: List['FreelancerCareerMapping'] = None
     sns_link: Optional[str] = None
     portfolios: List['FreelancerPortfolioMapping'] = None
-    created_at: datetime = datetime.utcnow()
-    updated_at: datetime = datetime.utcnow()
+    freelancer_registration_date: Optional[datetime] = None
+    freelancer_badge: Optional[str] = None
 
     def update_profile_picture_path(self, new_path: str):
         # 프로필 사진 경로 업데이트
@@ -112,3 +112,7 @@ class FreelancerRegistrationDomain:
                 self.portfolios.remove(portfolio)
             else:
                 print(f"오류: {portfolio.image_path} 포트폴리오 이미지를 찾을 수 없습니다.")
+    
+    def update_registration_date(self, registration_date:datetime):
+        # 프리랜서 등록일 업데이트
+        self.freelancer_registration_date = registration_date
