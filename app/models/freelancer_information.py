@@ -33,6 +33,7 @@ class PublicProfileList(db.Model):
     average_response_time = db.Column(db.Integer)
     freelancer_registration_date = db.Column(db.DateTime)
     average_rating = db.Column(db.Numeric(3, 2), default=0.00)
+    public_profile_registration_st = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     

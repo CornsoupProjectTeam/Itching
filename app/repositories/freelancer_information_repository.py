@@ -84,7 +84,14 @@ class FreelancerInformationRepository:
         try:           
             profile = PublicProfile.query.filter_by(public_profile_id=public_profile_id).first()
             if profile:            
+                # PublicProfile 테이블의 등록 상태 업데이트
                 profile.public_profile_registration_st = registration_status
+
+                # PublicProfileList 테이블의 등록 상태 업데이트
+                profile_list = PublicProfileList.query.filter_by(public_profile_id=public_profile_id).first()
+                if profile_list:
+                    profile_list.public_profile_registration_st = registration_status
+                
                 db.session.commit()
                 return {"success": True, "message": "등록 상태가 성공적으로 저장되었습니다."}
             return {"success": False, "message": "프로필을 찾을 수 없습니다."}

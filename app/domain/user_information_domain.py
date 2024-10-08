@@ -13,6 +13,7 @@ class UserInformationDomain:
     profile_picture_path: Optional[str]
     inquiry_st: bool
     freelancer_registration_st: bool
+    pretest_st: bool
     created_at: datetime
     updated_at: datetime
     
@@ -48,6 +49,9 @@ class UserInformationDomain:
 
     def update_freelancer_registration_state(self, is_registered: bool):
         self.freelancer_registration_st = is_registered
+    
+    def update_freelancer_pretest_st(self, pretest_st: bool):
+        self.freelancer_registration_st = pretest_st
 
     def update_preferred_fields(self, new_field: ClientPreferredFieldMapping):
         if not any(field.field_code == new_field.field_code for field in self.preferred_fields):

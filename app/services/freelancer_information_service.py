@@ -109,30 +109,30 @@ class FreelancerInformationService:
             return None
     
     # PublicProfileList 가져오기
-    def get_public_profile_list(self, public_profile_id: str):
-        result = self.repository.get_public_profile_list(public_profile_id)
+    # def get_public_profile_list(self, public_profile_id: str):
+    #     result = self.repository.get_public_profile_list(public_profile_id)
         
-        if result['success']:
-            profile_list = result['profile_list']            
-            return {
-                "success": True,
-                "data": {
-                    "public_profile_id": profile_list.public_profile_id,
-                    "nickname": profile_list.nickname,
-                    "profile_image_path": profile_list.profile_image_path,
-                    "freelancer_badge": profile_list.freelancer_badge,
-                    "match_count": profile_list.match_count,
-                    "freelancer_registration_date": profile_list.freelancer_registration_date,
-                    "average_rating": profile_list.average_rating,
-                    "created_at": profile_list.created_at,
-                    "updated_at": profile_list.updated_at
-                }
-            }
-        else:
-            return {
-                "success": False,
-                "message": result['message']
-            }
+    #     if result['success']:
+    #         profile_list = result['profile_list']            
+    #         return {
+    #             "success": True,
+    #             "data": {
+    #                 "public_profile_id": profile_list.public_profile_id,
+    #                 "nickname": profile_list.nickname,
+    #                 "profile_image_path": profile_list.profile_image_path,
+    #                 "freelancer_badge": profile_list.freelancer_badge,
+    #                 "match_count": profile_list.match_count,
+    #                 "freelancer_registration_date": profile_list.freelancer_registration_date,
+    #                 "average_rating": profile_list.average_rating,
+    #                 "created_at": profile_list.created_at,
+    #                 "updated_at": profile_list.updated_at
+    #             }
+    #         }
+    #     else:
+    #         return {
+    #             "success": False,
+    #             "message": result['message']
+    #         }
 
     # 프로젝트 기간 업데이트
     def update_project_duration(self, project_duration):
