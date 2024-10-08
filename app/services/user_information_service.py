@@ -13,7 +13,7 @@ class UserInformationService:
     def initialize_domain(self):        
 
         # 레포지토리에서 데이터를 가져와 도메인 객체 초기화
-        user_info_data = self.user_information_repository.get_user_info_by_user_id(self.user_id)        
+        user_info_data = self.user_information_repository.get_user_info_by_user_id(self.user_id)
 
         if user_info_data and user_info_data.get('success'):
             user_info_data = user_info_data['user_info']
@@ -34,6 +34,7 @@ class UserInformationService:
                 profile_picture_path=user_info_data['profile_picture_path'],
                 inquiry_st=user_info_data['inquiry_st'],
                 freelancer_registration_st=user_info_data['freelancer_registration_st'],
+                pretest_st=user_info_data['pretest_st'],
                 created_at=user_info_data['created_at'],
                 updated_at=user_info_data['updated_at'],
                 preferred_fields=preferred_fields,
@@ -55,6 +56,7 @@ class UserInformationService:
                 'business_area': user_info.business_area,
                 'inquiry_st': user_info.inquiry_st,
                 'freelancer_registration_st': user_info.freelancer_registration_st,
+                'pretest_st': user_info.pretest_st,
                 'preferred_fields': [
                     {'user_id': field.user_id, 'preferred_code': field.field_code} 
                     for field in user_info.preferred_fields
@@ -215,6 +217,9 @@ class UserInformationService:
 
         return {"success": False, "message": "프로필 사진 경로 업데이트에 실패하였습니다."}
 
+    #####################################################################################################
+    """다른 서비스에서 이용"""
+    
     # 새로운 회원 등록
     def user_registration(self, user_id: str, email: str, profile_picture_path: Optional[str], 
                         nickname: str, business_area: Optional[str], field_codes: list, 
@@ -247,17 +252,16 @@ class UserInformationService:
 
     # 프리랜서 등록 상태 업데이트
     def change_freelancer_registration_state(self,user_id, is_registered: bool) -> dict:
-        result = self.user_information_repository.update_freelancer_registration_state(self.user_id, is_registered)
+        result = self.user_information_repository.update_freelancer_registration_state(user_id, is_registered)
         
         if result['success']:
-            self.user_information_domain.freelancer_registration_st = is_registered
+            self.user_information_domain.update_freelancer_registration_state(is_registered)
             return {'success': True}
         else:
             return {'success': False}
 
     # 문의 상태 확인
-    @staticmethod
-    def confirm_inquiry_state(self) -> bool:
+    def confirm_inquiry_state(self, user_id) -> bool:
         return self.user_information_domain.inquiry_st
     
     # 문의 상태 변경
@@ -270,6 +274,20 @@ class UserInformationService:
         else:
             return {'success': False}
     
+    # pretest 시행 여부 확인
+    def confirm_pretest_state(self, user_id) -> bool:
+        return self.user_information_domain.pretest_st
+
+    # pretest 시행 여부 업데이트
+    def change_pretest_state(self,user_id, pretest_state: bool) -> dict:
+        result = self.user_information_repository.update_pretest_state(user_id, pretest_state)
+        
+        if result['success']:
+            self.user_information_domain.update_freelancer_pretest_st(pretest_state)
+            return {'success': True}
+        else:
+            return {'success': False}
+
     # 닉네임 검색
     def get_nickname_by_user_id(self, user_id):
         # 유저 ID로 닉네임을 가져옴
