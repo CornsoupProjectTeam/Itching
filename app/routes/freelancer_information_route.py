@@ -154,7 +154,7 @@ def delete_review(freelancer_user_id):
 
 # GET /profile/freelancer/public_profile_id}/public-profile/list
 # 나중에 프리랜서 탐색으로 옮길 것
-@freelancer_information_bp.route('/<public_profile_id>/profile-list', methods=['GET'])
-def get_public_profile_list(public_profile_id):
-    result = g.freelancer_service.get_public_profile_list(public_profile_id)
-    return jsonify(result)
+# @freelancer_information_bp.route('/<public_profile_id>/profile-list', methods=['GET'])
+# def get_public_profile_list(public_profile_id):
+#     result = g.freelancer_service.get_public_profile_list(public_profile_id)
+#     return jsonify(result)
