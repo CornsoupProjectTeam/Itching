@@ -43,19 +43,8 @@ app.register_blueprint(chat_room_bp, url_prefix='/chatroom')
 from app.routes.chat_room_quotation_routes import quotation_bp
 app.register_blueprint(quotation_bp, url_prefix='/chatroom/quotation')
 
-from app.routes.project_list_routes import project_list_bp
-app.register_blueprint(project_list_bp, url_prefix='/projectlist')
-
 from app.blueprints.payments import payments_bp
 app.register_blueprint(payments_bp, url_prefix='/payments')
-
-
-from app.routes.freelancer_list_routes import freelancer_bp
-app.register_blueprint(freelancer_bp, url_prefix='/freelancers')
-
-# 클라이언트 게시물 관련 블루프린트 추가
-from app.routes.client_post_routes import client_post_bp
-app.register_blueprint(client_post_bp, url_prefix='/client_posts')
 
 from app.routes.image_upload import image_upload_bp
 app.register_blueprint(image_upload_bp)
