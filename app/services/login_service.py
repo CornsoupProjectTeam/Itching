@@ -1,6 +1,6 @@
 #login_service.py
 
-from app.domain.login_domain import *
+from app.domain.login_domain import User
 from app.repositories.login_repository import LoginRepository
 from app.models.login import Login
 from flask import session
@@ -312,7 +312,7 @@ class LoginService:
     
     def change_password(self, user_id: str, current_password: str, new_password: str, confirm_new_password: str) -> dict:
         # 1. 현재 비밀번호 확인
-        hashed_current_password = self.login_repository.get_password_by_user_id(user_id)
+        hashed_current_password = self.user_repository.get_password_by_user_id(user_id)
         if not hashed_current_password:
             return {'success': False, 'message': '소셜 로그인 계정은 비밀번호 변경이 불가능합니다.'}
 
@@ -325,14 +325,14 @@ class LoginService:
             return {'success': False, 'message': '새 비밀번호와 비밀번호 확인이 일치하지 않습니다.'}
 
         # 4. 새 비밀번호 유효성 검사
-        if not validate_password(new_password):
+        if not User.validate_password(new_password):
             return {'success': False, 'message': '새로운 비밀번호는 8자 이상 소문자 영어 알파벳(a-z)와 숫자(0-9)로만 이루어져야 합니다.'}
         
         # 5. 새 비밀번호 해시 처리
         hashed_new_password = EncryptionUtils.hash_password(new_password)
 
         # 6. 새 비밀번호 저장
-        result = self.login_repository.save_new_password(user_id, hashed_new_password)
+        result = self.user_repository.save_new_password(user_id, hashed_new_password)
         if result['success']:
             return {'success': True, 'message': '비밀번호가 성공적으로 변경되었습니다.'}
         else:

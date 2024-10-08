@@ -1,111 +1,58 @@
-# #chat_room_service.py
-# from typing import List, Dict
-# from pymongo import MongoClient
-# from app.domain.chat_room_domain import ChatRoom
-# from app.repositories.chat_room_repository import ChatRoomRepository
-
-# class ChatRoomService:
-#     def __init__(self, mongo_uri: str, db_session):
-#         self.client = MongoClient(mongo_uri)
-#         self.db = self.client['itching_mongodb']
-#         self.collection = self.db['Chat_room_list_test']
-#         self.chat_room_repository = ChatRoomRepository(db_session)
-
-#     def get_chat_rooms_for_user(self, freelancer_user_id: str) -> List[Dict]:
-#         chat_rooms = list(self.collection.find({
-#             'participants_mapping.freelancer_user_id': freelancer_user_id
-#         }))
-#         return chat_rooms
-
-#     def get_chat_room_data(self, freelancer_user_id: str) -> List[Dict]:
-#         chat_rooms = self.get_chat_rooms_for_user(freelancer_user_id)
-        
-#         chat_room_data = []
-#         for chat_room in chat_rooms:
-#             last_message_info = chat_room.get("message_mapping", [])[-1] if chat_room.get("message_mapping") else None
-#             chat_room_data.append({
-#                 "chat_room_id": chat_room["chat_room_id"],
-#                 "client_user_id": chat_room["participants_mapping"]["client_user_id"],
-#                 "last_message": last_message_info["message_content"] if last_message_info else "No messages",
-#                 "sender_id": last_message_info["sender_user_id"] if last_message_info else "Unknown",
-#                 "updated_at": chat_room["updated_at"]
-#             })
-
-#         return chat_room_data
-
-#     def get_chat_room_by_id(self, chat_room_id: str) -> Dict:
-#         chat_room = self.collection.find_one({'chat_room_id': int(chat_room_id)})
-#         return chat_room
-
-#     def send_message(self, chat_room_id, sender_id, receiver_id, message):
-#         chat_room = self.chat_room_repository.find_by_id(chat_room_id)
-        
-#         if chat_room:
-#             chat_room.add_message(sender_id, receiver_id, message)
-#             self.chat_room_repository.save(chat_room)
-
-#             self.chat_room_repository.add_message(chat_room_id, sender_id, receiver_id, message)
-
-#     def get_received_messages(self, chat_room_id, user_id):
-#         chat_room = self.chat_room_repository.find_by_id(chat_room_id)
-#         if chat_room:
-#             return chat_room.get_messages_for_user(user_id)
-#         return []
-
-#     def get_most_recent_message(self, chat_room_id: str, user_id: str) -> Dict:
-#         return self.chat_room_repository.get_most_recent_message(chat_room_id, user_id)
-
-from typing import List, Dict
-from app.domain.chat_room_domain import ChatRoom
-from app.repositories.chat_room_repository import ChatRoomRepository
+# app/services/chat_room_service.py
+from app.models.chat_room_master import ChatRoomMaster
+from app.models.mongo_message import MongoMessage
+from app import db
 
 class ChatRoomService:
-    def __init__(self, db_session):
-        self.chat_room_repository = ChatRoomRepository(db_session)
+    def __init__(self, mongo_uri):
+        self.mongo_message = MongoMessage(mongo_uri=mongo_uri, db_name="itching_mongodb")
 
-    def get_chat_rooms_for_user(self, freelancer_user_id: str) -> List[Dict]:
-        # MySQL에서 채팅방 데이터 가져오기
-        chat_rooms = self.chat_room_repository.get_chat_rooms_by_user_id(freelancer_user_id)
-        return chat_rooms
+    # MySQL에서 채팅방 목록 조회
+    def get_chat_rooms(self, user_id):
+        chat_rooms = ChatRoomMaster.query.filter_by(user_id=user_id).all()
+        return [chat_room.to_dict() for chat_room in chat_rooms]
 
-    def get_chat_room_data(self, freelancer_user_id: str) -> List[Dict]:
-        chat_rooms = self.get_chat_rooms_for_user(freelancer_user_id)
-        
-        chat_room_data = []
-        for chat_room in chat_rooms:
-            last_message_info = chat_room.get("last_message_info", None)
-            chat_room_data.append({
-                "chat_room_id": chat_room["chat_room_id"],
-                "client_user_id": chat_room["client_user_id"],
-                "last_message": last_message_info["message_content"] if last_message_info else "No messages",
-                "sender_id": last_message_info["sender_user_id"] if last_message_info else "Unknown",
-                "updated_at": chat_room["updated_at"]
-            })
+    # MySQL에 채팅방 생성
+    def create_chat_room(self, user_id, other_user_id):
+        new_chat_room = ChatRoomMaster(
+            user_id=user_id,
+            other_user_id=other_user_id,
+            trade_st='In progress'
+        )
+        db.session.add(new_chat_room)
+        db.session.commit()
+        return new_chat_room.to_dict()
 
-        return chat_room_data
+    # 특정 거래 시작된 게시물로 이동
+    def move_to_trade_post(self, chat_room_id):
+        chat_room = ChatRoomMaster.query.filter_by(chat_room_id=chat_room_id).first()
+        if not chat_room:
+            return None
+        return chat_room.start_post_id
 
-    def get_chat_room_by_id(self, chat_room_id: str) -> Dict:
-        # MySQL에서 채팅방 정보 가져오기
-        chat_room = self.chat_room_repository.find_by_id(chat_room_id)
+    # NoSQL에서 메시지 조회
+    def get_chat_room_messages(self, chat_room_id, user_id):
+        messages = self.mongo_message.get_messages(chat_room_id, user_id)
+        return messages
+
+    # 메시지 저장 (NoSQL)
+    def save_message(self, sender_user_id, receiver_user_id, message_content):
+        return self.mongo_message.save_message(sender_user_id, receiver_user_id, message_content)
+
+    # 거래 취소 (MySQL)
+    def cancel_trade(self, chat_room_id):
+        chat_room = ChatRoomMaster.query.filter_by(chat_room_id=chat_room_id).first()
+        if not chat_room:
+            return None
+        chat_room.trade_st = 'Canceled'
+        db.session.commit()
         return chat_room
 
-    def send_message(self, chat_room_id: str, sender_id: str, receiver_id: str, message: str):
-        chat_room = self.chat_room_repository.find_by_id(chat_room_id)
-        
-        if chat_room:
-            chat_room.add_message(sender_id, receiver_id, message)
-            self.chat_room_repository.save(chat_room)
-
-            # 메시지 저장 로직 추가
-            self.chat_room_repository.add_message(chat_room_id, sender_id, receiver_id, message)
-
-    def get_received_messages(self, chat_room_id: str, user_id: str) -> List[Dict]:
-        chat_room = self.chat_room_repository.find_by_id(chat_room_id)
-        if chat_room:
-            return chat_room.get_messages_for_user(user_id)
-        return []
-
-    def get_most_recent_message(self, chat_room_id: str, user_id: str) -> Dict:
-        return self.chat_room_repository.get_most_recent_message(chat_room_id, user_id)
-
-
+    # 거래 완료 (MySQL)
+    def complete_trade(self, chat_room_id):
+        chat_room = ChatRoomMaster.query.filter_by(chat_room_id=chat_room_id).first()
+        if not chat_room:
+            return None
+        chat_room.trade_st = 'Completed'
+        db.session.commit()
+        return chat_room

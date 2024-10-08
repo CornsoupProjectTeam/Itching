@@ -9,7 +9,7 @@ class ChatRoomQuotation(db.Model):
     chat_room_id = db.Column(db.String(50), db.ForeignKey('CHAT_ROOM_MASTER.chat_room_id', ondelete='CASCADE'), nullable=False) 
     client_user_id = db.Column(db.String(20), db.ForeignKey('USER_INFORMATION.user_id', ondelete='CASCADE'), nullable=False)  
     freelancer_user_id = db.Column(db.String(20), db.ForeignKey('USER_INFORMATION.user_id', ondelete='CASCADE'), nullable=False)
-    quotation_st = db.Column(db.Enum('Submitted', 'Accepted'))
+    quotation_st = db.Column(db.Enum('Submitted', 'Accepted', 'Updated')) # 견적서 수정을 위해 update 추가
     quotation = db.Column(db.Numeric(10, 2))
     number_of_drafts = db.Column(db.Integer)
     midterm_check = db.Column(db.Date)

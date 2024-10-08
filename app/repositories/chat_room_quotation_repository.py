@@ -25,16 +25,3 @@ class ChatRoomQuotationRepository:
             print(f"Error saving quotation: {e}")
             return False
 
-    def delete(self, quotation_id: str) -> bool:
-        """견적서 삭제"""
-        try:
-            quotation = self.get_by_id(quotation_id)
-            if quotation:
-                db.session.delete(quotation)
-                db.session.commit()
-                return True
-            return False
-        except SQLAlchemyError as e:
-            db.session.rollback()
-            print(f"Error deleting quotation: {e}")
-            return False
