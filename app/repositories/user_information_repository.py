@@ -5,7 +5,7 @@ from typing import Optional
 class UserInformationRepository:
 
     def get_user_info_by_user_id(self, user_id: str) -> dict:
-        try:
+        try:            
             # 기본 사용자 정보 조회           
             user_info = UserInformation.query.filter_by(user_id=user_id).first()
 
@@ -31,6 +31,7 @@ class UserInformationRepository:
                     'profile_picture_path': user_info.profile_picture_path,
                     'inquiry_st': user_info.inquiry_st,
                     'freelancer_registration_st': user_info.freelancer_registration_st,
+                    'pretest_st': user_info.pretest_st,
                     'created_at': user_info.created_at,
                     'updated_at': user_info.updated_at,
                     'preferred_fields': preferred_fields_list,
@@ -246,12 +247,12 @@ class UserInformationRepository:
             user_info = UserInformation.query.filter_by(user_id=user_id).first()
             if user_info:
                 return user_info.freelancer_registration_st
-            return False  # 유저가 없으면 False 반환
+            return {'success': False, 'message': "프리랜서 등록 상태 확인이 불가합니다."}
         except SQLAlchemyError as e:
             db.session.rollback()  
             return {'success': False, 'message': str(e)} 
     
-    # 주어진 user_id의 정보를 조회
+    # 주어진 user_id의 프리랜서 등록 상태 업데이트
     def update_freelancer_registration_state(self, user_id: str, is_registered: bool) -> dict:
         try:            
             user_info = UserInformation.query.filter_by(user_id=user_id).first()
@@ -275,4 +276,27 @@ class UserInformationRepository:
         except SQLAlchemyError as e:
             db.session.rollback()
             raise ValueError(f"SQLAlchemyError occurred: {e}")
-
+    
+    # 주어진 user_id의 문의상태를 확인
+    def check_freelancer_registration(self, user_id: str) -> bool:        
+        try:
+            user_info = UserInformation.query.filter_by(user_id=user_id).first()
+            if user_info:
+                return user_info.inquiry_st
+            return {'success': False, 'message': "문의상태 확인이 불가합니다."}
+        except SQLAlchemyError as e:
+            db.session.rollback()  
+            return {'success': False, 'message': str(e)} 
+    
+    # 주어진 user_id의 프리랜서 등록 상태 업데이트
+    def update_pretest_state(self, user_id: str, pretest_state: bool) -> dict:
+        try:            
+            user_info = UserInformation.query.filter_by(user_id=user_id).first()
+            if user_info:                
+                user_info.pretest_st = pretest_state
+                db.session.commit()
+                return {'success': True}
+            return {'success': False}
+        except SQLAlchemyError as e:
+            db.session.rollback()  
+            return {'success': False, 'message': str(e)} 
