@@ -386,18 +386,8 @@ class FreelancerRegistrationService:
     def registration_complete(self, user_id):
         profile = self.domain
         
-        # 필수 필드가 채워져 있는지 확인
-        required_fields = [
-            profile.nickname,
-            profile.freelancer_intro,
-            profile.expertise_fields,
-            profile.skill_codes,
-            profile.educations,
-            profile.careers
-        ]
-        
-        # 필수 필드 중 하나라도 비어 있다면 False를 반환
-        if any(field is None or (isinstance(field, list) and not field) for field in required_fields):
+        # 도메인 객체의 메서드를 사용하여 필수 필드 검증
+        if not profile.is_registration_complete():
             return {
                 "success": False,
                 "message": "필수 등록 정보가 누락되었습니다."
@@ -414,7 +404,7 @@ class FreelancerRegistrationService:
 
         # 도메인 메서드에 변환된 datetime 객체 전달
         self.domain.update_registration_date(registration_date=registration_date)
-        
+
         # 프리랜서 등록 상태 변경
         result = self.user_information_service.change_freelancer_registration_state(user_id, True)
         if not result['success']:
