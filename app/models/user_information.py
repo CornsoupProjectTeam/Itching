@@ -3,7 +3,7 @@ from datetime import datetime
 from app import db
 
 # UserInformation 모델
-class UserInformation(db.Model):  # db.Model 상속
+class UserInformation(db.Model):  
     __tablename__ = 'USER_INFORMATION'
     
     user_id = db.Column(db.String(20), db.ForeignKey('LOGIN.user_id', ondelete='CASCADE'), primary_key=True)
@@ -13,13 +13,14 @@ class UserInformation(db.Model):  # db.Model 상속
     business_area = db.Column(db.String(100))
     inquiry_st = db.Column(db.Boolean, default=False)
     freelancer_registration_st = db.Column(db.Boolean, default=False)
+    pretest_st = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     login = db.relationship('Login', backref=backref('user_information', uselist=False, cascade="all, delete-orphan"))
 
 # ClientPreferredFieldMapping 모델
-class ClientPreferredFieldMapping(db.Model):  # db.Model 상속
+class ClientPreferredFieldMapping(db.Model):  
     __tablename__ = 'CLIENT_PREFERRED_FIELD_MAPPING'
     
     user_id = db.Column(db.String(20), db.ForeignKey('USER_INFORMATION.user_id', ondelete='CASCADE'), primary_key=True)
@@ -29,7 +30,7 @@ class ClientPreferredFieldMapping(db.Model):  # db.Model 상속
     field_keyword = db.relationship('FieldKeywords', backref=backref('client_preferred_fields', lazy=True, cascade="all, delete-orphan"))
 
 # PreferredFreelancerMapping 모델
-class PreferredFreelancerMapping(db.Model):  # db.Model 상속
+class PreferredFreelancerMapping(db.Model):  
     __tablename__ = 'PREFERRED_FREELANCER_MAPPING'
     
     user_id = db.Column(db.String(20), db.ForeignKey('USER_INFORMATION.user_id', ondelete='CASCADE'), primary_key=True)  
