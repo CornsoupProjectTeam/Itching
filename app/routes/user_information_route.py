@@ -17,7 +17,7 @@ def get_user_information(user_id):
     user_info = g.user_information_service.get_user_information()
 
     if user_info:
-        return jsonify({'success': True, 'data': user_info}), 200
+        return jsonify(user_info), 200
     else:
         return jsonify({'success': False, 'message': '사용자 정보를 찾을 수 없습니다.'}), 404
 
@@ -185,3 +185,23 @@ def change_password(user_id):
 
     # 결과 반환
     return jsonify(result), 200 if result['success'] else 400
+
+# GET /profile/user_information/{user_id}/check-inquiry-state
+@user_information_bp.route('/<user_id>/check-inquiry-state', methods=['GET'])
+def check_inquiry_state(user_id):
+    inquiry_state = g.user_information_service.confirm_inquiry_state(user_id)
+
+    if inquiry_state is not None:
+        return jsonify({'inquiry_state': inquiry_state}), 200
+    else:
+        return jsonify({'success': False, 'message': '문의 상태를 확인할 수 없습니다.'}), 404
+    
+# GET /profile/user_information/{user_id}/check-pretest-state
+@user_information_bp.route('/<user_id>/check-pretest-state', methods=['GET'])
+def check_pretest_state(user_id):
+    pretest_state = g.user_information_service.confirm_pretest_state(user_id)
+
+    if pretest_state is not None:
+        return jsonify({'pretest_state': pretest_state}), 200
+    else:
+        return jsonify({'success': False, 'message': 'pretest 시행 여부를 확인할 수 없습니다.'}), 404
