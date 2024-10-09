@@ -34,32 +34,90 @@ class LoginService:
         return self.serializer.dumps(email, salt='email-confirm-salt')
 
     def sign_up(self, user_id, password, provider_id=None, email=None, personal_info_consent=None, terms_of_service_consent=None):
-        if not Login.validate_user_id(user_id):
+        if not User.validate_user_id(user_id):
             return "User ID must only contain lowercase letters and numbers.", False
     
-        if not Login.validate_password(password):
+        if not User.validate_password(password):
             return "Password must be at least 8 characters long and contain only lowercase letters and numbers.", False
         
         # 비밀번호를 암호화하여 저장
         hashed_password = EncryptionUtils.hash_password(password)
 
         new_user = Login(
-            USER_ID=user_id,
-            PASSWORD=hashed_password,  # 암호화된 비밀번호 저장
-            PROVIDER_ID=provider_id,
-            IS_ACTIVE=True
+            user_id=user_id,
+            password=hashed_password,  # 암호화된 비밀번호 저장
+            provider_id=provider_id,
+            is_active=True
         )
         self.user_repository.save(new_user)
 
-        if personal_info_consent is not None and terms_of_service_consent is not None:
-            new_consent = UserConsent(
+        try:
+          # 사용자 정보 삽입
+            user_info_repo = UserInformationRepository()
+            user_info_repo.insert_new_user(
                 user_id=user_id,
-                personal_info_consent=personal_info_consent,
-                terms_of_service_consent=terms_of_service_consent
+                email=email,
+                profile_picture_path=None,
+                nickname=None,
+                business_area=None,
+                preferred_fields=[],
+                preferred_freelancers=[]
+            )
+
+            # 동의 정보 삽입
+            if personal_info_consent is not None and terms_of_service_consent is not None:
+                new_consent = UserConsent(
+                    user_id=user_id,
+                    personal_info_consent=personal_info_consent,
+                    terms_of_service_consent=terms_of_service_consent
             )
             self.user_repository.save_user_consent(new_consent)
 
-        return "User registered successfully. Please verify your email.", True
+            return "User registered successfully", True
+
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            return "User registration failed.", False
+
+
+        # # USER_INFORMATION에 사용자 정보 저장
+        # user_info_repo = UserInformationRepository()
+        # user_info_repo.insert_new_user(
+        # user_id=user_id,
+        # email=email,
+        # profile_picture_path=None,
+        # nickname=None,
+        # business_area=None,
+        # preferred_fields=[],
+        # preferred_freelancers=[]
+        # )
+
+        # if personal_info_consent is not None and terms_of_service_consent is not None:
+        #     new_consent = UserConsent(
+        #         user_id=user_id,
+        #         personal_info_consent=personal_info_consent,
+        #         terms_of_service_consent=terms_of_service_consent
+        #     )
+        #     self.user_repository.save_user_consent(new_consent)
+
+        # return "User registered successfully.", True
+    
+    def save_user_profile(self, user_id, email, nickname, business_area, profile_picture_path, preferred_freelancer_type_data):
+        try:
+            user_info_repo = UserInformationRepository()
+            # UserProfile SQL에 저장
+            user_profile_data = {
+                "user_id": user_id,
+                "email": email,
+                "nickname": nickname,
+                "business_area": business_area,
+                "profile_picture_path": profile_picture_path,
+                "preferred_freelancer_type_mapping": preferred_freelancer_type_data
+        }
+            user_info_repo.insert_new_user(user_profile_data)
+            return True, "Profile saved successfully."
+        except Exception as e:
+            return False, str(e)
     
     def send_verification_email(self, email):
         # 이메일 값이 올바른지 디버깅 메시지 추가
@@ -96,7 +154,7 @@ class LoginService:
             email = self.serializer.loads(token, salt='email-confirm-salt', max_age=3600)  # 1시간 유효
             user = self.user_repository.find_by_user_id(email)
             if user:
-                user.IS_ACTIVE = True  # 이메일 인증 상태 갱신
+                user.is_active = True  # 이메일 인증 상태 갱신
                 self.user_repository.update(user)
                 return True
             else:
@@ -105,35 +163,22 @@ class LoginService:
         except Exception as e:
             print(f"Email verification failed: {e}")
             return False
-        
-    def save_user_profile(self, user_id, email, nickname, business_area, profile_picture_path, preferred_freelancer_type_data):
-        try:
-            user_info_repo = UserInformationRepository()
-            # UserProfile SQL에 저장
-            user_profile_data = {
-                "user_id": user_id,
-                "email": email,
-                "nickname": nickname,
-                "business_area": business_area,
-                "profile_picture_path": profile_picture_path,
-                "preferred_freelancer_type_mapping": preferred_freelancer_type_data
-        }
-            user_info_repo.insert_user(user_profile_data)
-            return True, "Profile saved successfully."
-        except Exception as e:
-            return False, str(e)
 
     def login(self, user_id, password):
         user = self.user_repository.find_by_user_id(user_id)
         if not user:
             return "User does not exist", False
+        
+        print(f"Stored password hash: {user.password}")
+        print(f"Input password: {password}")
 
         # 입력한 비밀번호와 해시된 비밀번호를 비교
-        if user.PASSWORD and EncryptionUtils.check_password(password, user.PASSWORD):
-            session['user_id'] = user.USER_ID
+        if user.password and EncryptionUtils.check_password(password, user.password):
+            session['user_id'] = user.user_id
             return "Login successful", True
 
         return "Invalid credentials", False
+
 
     def logout(self):
         session.pop('user_id', None)
@@ -147,12 +192,7 @@ class LoginService:
 
         if user_id:
             user = user_info_repo.get_user_info_by_user_id(user_id)
-            if not user or user.email != email:
-                return "User not found.", False
-        else:
-            # user_id 없이 email로만 검색하는 경우
-            user = user_info_repo.get_user_by_email(email)
-            if not user:
+            if not user or user['user_info']['email'] != email: 
                 return "User not found.", False
 
         token = self.generate_token(email)
@@ -171,7 +211,7 @@ class LoginService:
             user = self.user_repository.find_by_user_id(email)
             if user:
                 hashed_password = EncryptionUtils.hash_password(new_password)
-                user.PASSWORD = hashed_password
+                user.password = hashed_password
                 self.user_repository.update(user)
                 return "Password updated successfully.", True
             return "Invalid token or user not found.", False
@@ -237,11 +277,13 @@ class LoginService:
         
         user_profile = user_info_repo.get_user_by_email(email)
 
-        if not user_profile:
+        if not user_profile['success']:
             return "User not found.", False
+        
+        user_id = user_profile['user_info'].user_id
 
         msg = Message('Your ID Information', sender=app.config['MAIL_DEFAULT_SENDER'], recipients=[email])
-        msg.body = f"Your ID is: {user_profile.user_id}"
+        msg.body = f"Your ID is: {user_id}"
         mail.send(msg)
         return "User ID sent to your email.", True
     
@@ -286,7 +328,7 @@ class LoginService:
         return self.google.authorize_redirect(redirect_uri, nonce=nonce)
 
     def google_oauth_login_callback(self):
-        """Google OAuth 로그인 콜백"""
+        """Google OAuth 콜백 시작"""
         try:
             token = self.google.authorize_access_token()
             if not token:
@@ -305,10 +347,12 @@ class LoginService:
 
             user = self.find_or_create_social_user(provider_id, 'google')
 
-            session['user_id'] = user.USER_ID
-            return email, provider_id, True
+            session['user_id'] = user.user_id
+            # 반환 값을 딕셔너리로 변경
+            return {"email": email, "provider_id": provider_id}, True
         except Exception as e:
             return str(e), False
+
     
     def change_password(self, user_id: str, current_password: str, new_password: str, confirm_new_password: str) -> dict:
         # 1. 현재 비밀번호 확인

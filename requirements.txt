@@ -17,3 +17,5 @@ Flask-OAuthlib
 bcrypt
 requests
 mysql-connector-python
+twilio
+phone

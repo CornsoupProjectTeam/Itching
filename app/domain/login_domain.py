@@ -26,12 +26,17 @@ class User:
     @staticmethod
     def validate_user_id(user_id: str) -> bool:
         """아이디는 소문자 영어와 숫자만 포함 가능"""
+        if user_id is None:
+            return False  # None이면 False 반환
         return bool(re.match(r"^[a-z0-9]+$", user_id))
 
     @staticmethod
     def validate_password(password: str) -> bool:
         """비밀번호는 소문자 영어와 숫자만 포함 가능"""
+        if password is None:
+            return False  # None이면 False 반환
         return len(password) >= 8 and bool(re.match(r"^[a-z0-9]+$", password))
+
 
 
 @dataclass

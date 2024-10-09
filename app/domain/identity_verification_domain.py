@@ -10,8 +10,8 @@ class IdentityVerificationDomain:
         self.expiration_time = expiration_time
 
     def is_valid_phone_number(self):
-        # 전화번호 유효성 검사 (10~15 자리 숫자)
-        pattern = r"^\d{10,15}$"
+        # 국제 전화번호 형식 유효성 검사 (예: +821012345678)
+        pattern = r"^\+?\d{10,15}$"
         return re.match(pattern, self.phone_number) is not None
 
     def is_verification_code_valid(self, input_code):

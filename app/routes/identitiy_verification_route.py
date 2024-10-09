@@ -16,8 +16,8 @@ oauth = OAuth(app)
 # SMS 본인 인증 서비스 인스턴스 생성
 verification_service = IdentityVerificationService()
 
-@identity_verification_bp.route('/freelancer/{user_id}/register/send_verification_code', methods=['POST'])
-def send_verification_code():
+@identity_verification_bp.route('/freelancer/<user_id>/register/send_verification_code', methods=['POST'])
+def send_verification_code(user_id):
     try:
         phone_number = request.json.get('phone_number')
         if not phone_number:
@@ -31,7 +31,7 @@ def send_verification_code():
     except Exception as e:
         return jsonify({"error": "SMS 전송에 실패했습니다."}), 500
 
-@identity_verification_bp.route('/freelancer/{user_id}/register/verify_code', methods=['POST'])
+@identity_verification_bp.route('/freelancer/<user_id>/register/verify_code', methods=['POST'])
 def verify_code():
     try:
         user_id = request.json.get('user_id')

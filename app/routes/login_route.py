@@ -45,6 +45,17 @@ def verify_email(token):
         return redirect(url_for('login_bp.signup_info'))
     else:
         return jsonify({"message": "Invalid or expired token"}), 400
+    
+
+# @login_bp.route('/verify-email/<token>', methods=['GET'])
+# def verify_email(token):
+#     """Endpoint to verify email from the link."""
+#     message, success = login_service.verify_email_and_create_user(token)
+#     if success:
+#         return jsonify({"message": message}), 200
+#     else:
+#         return jsonify({"message": message}), 400
+
 
 @login_bp.route('/signup/info', methods=['GET', 'POST'])
 def signup_info():
@@ -56,16 +67,16 @@ def signup_info():
     
     # POST 요청의 경우 사용자가 로컬 로그인 후 들어오는 화면
     data = request.json
-    user_id = data.get('USER_ID')
-    password = data.get('PASSWORD')
-    provider_id = data.get('PROVIDER_ID')
-    email = data.get('EMAIL')  # 이미 인증된 email 사용
-    nickname = data.get('NICKNAME')
-    business_area = data.get('BUSINESS_AREA')
-    profile_picture_path = data.get('PROFILE_PICTURE_PATH', None)
-    personal_info_consent = data.get('PERSONAL_INFO_CONSENT')
-    terms_of_service_consent = data.get('TERMS_OF_SERVICE_CONSENT')
-    preferred_freelancer_type_data = data.get('PREFERRED_FREELANCER_TYPE_MAPPING', {})
+    user_id = data.get('user_id')
+    password = data.get('password')
+    provider_id = data.get('provider_id')
+    email = data.get('email')  # 이미 인증된 email 사용
+    nickname = data.get('nickname')
+    business_area = data.get('business_area')
+    profile_picture_path = data.get('profile_picture_path', None)
+    personal_info_consent = data.get('personal_info_consent')
+    terms_of_service_consent = data.get('terms_of_sevice_consent')
+    preferred_freelancer_type_data = data.get('preferred_freelancer_type_mapping', {})
     
     # MySQL에 Login 정보 저장 및 UserProfile 저장
     message, success = login_service.sign_up(user_id, password, provider_id, email, personal_info_consent=personal_info_consent, 
@@ -87,11 +98,12 @@ def signup_info():
 @login_bp.route('/login', methods=['POST'])
 def login():
     data = request.json
-    user_id = data.get('USER_ID')
-    password = data.get('PASSWORD')
-    
+    user_id = data.get('user_id')  # 소문자 'user_id'
+    password = data.get('password')  # 소문자 'password'
+
     message, success = login_service.login(user_id, password)
     return jsonify({"message": message, "success": success}), (200 if success else 400)
+
 
 @login_bp.route('/logout', methods=['POST'])
 def logout():
@@ -107,7 +119,7 @@ def account_recovery():
 def find_id():
     """이메일을 통해 사용자 ID 찾기 이거 수정"""
     data = request.json
-    email = data.get('EMAIL')
+    email = data.get('email')
 
     if not email:
         return jsonify({"message": "Email is required.", "success": False}), 400
@@ -118,15 +130,15 @@ def find_id():
         return jsonify({"message": "User not found with the provided email.", "success": False}), 404
 
     # 서비스 계층에서 사용자 ID 전송 처리
-    message, success = login_service.send_user_id_by_email(email, user.user_id)
+    message, success = login_service.find_user_id_by_email(email)
     
     return jsonify({"message": message, "success": success}), (200 if success else 400)
 
 @login_bp.route('/account/recovery/reset-password', methods=['POST'])
 def reset_password_request():
     data = request.json
-    email = data.get('EMAIL') 
-    user_id = data.get('USER_ID')
+    email = data.get('email') 
+    user_id = data.get('user_id')
 
     if not email or not user_id:
         return jsonify({"message": "Email and User ID are required.", "success": False}), 400
@@ -134,7 +146,7 @@ def reset_password_request():
     message, success = login_service.send_password_reset_link(email, user_id)
     return jsonify({"message": message, "success": success}), (200 if success else 400)
 
-@login_bp.route('/reset-password/<token>', methods=['GET', 'POST'])
+@login_bp.route('/account/recovery/reset-password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     if request.method == 'GET':
         return jsonify({"message": "Enter your new password."})
@@ -169,14 +181,23 @@ def google_signup_callback():
 def google_login():
     return login_service.google_oauth_login()
 
-# Google OAuth 로그인 콜백
 @login_bp.route('/login/google/callback', methods=['GET'])
 def google_callback():
-    email, provider_id, success = login_service.google_oauth_login_callback()
+    result, success = login_service.google_oauth_login_callback()
+
+    # 디버깅 메시지 추가
+    print(f"Result: {result}, Success: {success}")
+    
     if success:
-        return redirect(url_for('login_bp.signup_info', email=email, user_id=provider_id))
+        email = result.get('email', None)  # 이메일이 있으면 가져옴, 없으면 None
+        provider_id = result.get('provider_id', None)  # provider_id도 마찬가지
+        if email and provider_id:
+            return redirect(url_for('login_bp.signup_info', email=email, user_id=provider_id))
+        else:
+            return jsonify({"error": "Missing email or provider_id."}), 400
     else:
-        return jsonify({"error": email}), 400
+        return jsonify({"error": result}), 400
+
 
 @app.route('/home')
 def index():

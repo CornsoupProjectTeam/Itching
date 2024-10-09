@@ -1,7 +1,7 @@
 #payment_authentication_route.py
 
 from flask import Blueprint, request, jsonify
-from app.services.payment_authentication_service import PaymentAuthenticationService
+from app.services.payment_authentication_service import AuthenticationService
 
 payment_authentication_bp = Blueprint('authentication', __name__)
 
@@ -12,7 +12,7 @@ def authenticate_user():
     client_user_id = data.get('client_user_id')
     password = data.get('password')
 
-    is_authenticated, message = PaymentAuthenticationService.authenticate(user_name, client_user_id, password)
+    is_authenticated, message = AuthenticationService.authenticate(user_name, client_user_id, password)
 
     if is_authenticated:
         return jsonify({"message": message}), 200
