@@ -1,5 +1,4 @@
-#payment_authentication_repository.py
-"""payment_repository.py로 변경해주세요"""
+#payment_repository.py
 
 from app.models.payment import Payment
 from app.models.login import Login
@@ -26,17 +25,3 @@ class PaymentRepository:
     @staticmethod
     def find_by_client_user_id(client_user_id):
         return Payment.query.filter_by(client_user_id=client_user_id).first()
-
-"""빼주세요"""
-class LoginRepository:
-
-    @staticmethod
-    def find_by_user_id(user_id):
-        return Login.query.filter_by(user_id=user_id).first()
-
-    @staticmethod
-    def verify_password(user_id, password):
-        login_user = Login.query.filter_by(user_id=user_id).first()
-        if login_user and login_user.password == password:
-            return True
-        return False

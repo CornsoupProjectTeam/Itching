@@ -1,49 +1,39 @@
 #payment_authentication_service.py
-
-from app.domain.payment_authentication_domain import AuthenticationDomain
-from app.repositories.payment_authentication_repository import PaymentRepository
+from app.repositories.payment_repository import PaymentRepository
 from app.repositories.login_repository import LoginRepository
 import requests
 import os
-from flask import url_for
+from flask import session, url_for
 
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 GOOGLE_DISCOVERY_URL = 'https://accounts.google.com/.well-known/openid-configuration'
 
-"""클래스명 AuthenticationService로 변경"""
-class PaymentAuthenticationService:
+class AuthenticationService:
 
     @staticmethod
     def authenticate(chat_room_id, user_name, client_user_id, password):
-        
-        """유저 이름은 입력을 받아 테이블에 삽입하면 되고 카드 이름 검증은 이 단계에서 필요 없는 로직임"""
-        # 이름 검증
-        if not AuthenticationDomain.verify_user_name(user_name):
-            return False, "User name verification failed."
-        
-        """카드 이름 검증은 필요 없음"""
-        # 카드 이름 검증
-        if not PaymentRepository.verify_card_name(user_name):
-            return False, "Card name verification failed."
             
         # 사용자 이름을 결제 테이블에 삽입
-        AuthenticationDomain.insert_user_name(chat_room_id, user_name)
+        PaymentRepository.insert_user_name(chat_room_id, user_name)
 
-        """사용자가 입력한 ID와 비밀번호가 맞는지 확인하는 로직이 필요"""
-        """로컬 계정 아이디/비밀번호 받아서 인증하는 부분이 없음 아이디가 세션과 일치하는지, 비밀번호가 일치하는지 검증하는 로직 필요"""
-        # 사용자 ID 검증
-        if not AuthenticationDomain.verify_user_id(client_user_id):
+        # 로그인 정보 확인 (사용자 ID가 테이블에 존재하는지 확인)
+        login_user = LoginRepository.find_by_user_id(client_user_id)
+        
+        # 사용자가 존재하지 않으면 에러 반환
+        if not login_user:
             return False, "User ID verification failed."
 
-        # 로그인 정보 확인
-        login_user = LoginRepository.find_by_user_id(client_user_id)
+        # 세션에서 사용자 ID를 확인하고 일치하는지 검증
+        session_user_id = session.get('user_id')
+        if session_user_id != client_user_id:
+            return False, "Session user ID mismatch."
         
 
         if login_user.provider_id == 'google':
             # 구글 로그인 사용자의 경우 리프레시 토큰으로 액세스 토큰 갱신
             try:
-                new_access_token = PaymentAuthenticationService.refresh_google_access_token(login_user.password)  # 여기서는 password 필드를 리프레시 토큰으로 사용한다고 가정
+                new_access_token = AuthenticationService.refresh_google_access_token(login_user.password)  # 여기서는 password 필드를 리프레시 토큰으로 사용한다고 가정
                 return True, f"Google user re-authenticated successfully. New access token: {new_access_token}"
             except Exception as e:
                 return False, str(e)
@@ -57,7 +47,7 @@ class PaymentAuthenticationService:
     @staticmethod
     def get_google_authorization_url():
         
-        google_provider_cfg = PaymentAuthenticationService.get_google_provider_cfg()
+        google_provider_cfg = AuthenticationService.get_google_provider_cfg()
         authorization_endpoint = google_provider_cfg["authorization_endpoint"]
 
         request_uri = requests.Request('GET', authorization_endpoint, params={
@@ -72,7 +62,7 @@ class PaymentAuthenticationService:
     @staticmethod
     def get_google_tokens(code):
         
-        google_provider_cfg = PaymentAuthenticationService.get_google_provider_cfg()
+        google_provider_cfg = AuthenticationService.get_google_provider_cfg()
         token_endpoint = google_provider_cfg["token_endpoint"]
 
         # 인증 코드를 사용하여 토큰 요청
@@ -96,7 +86,7 @@ class PaymentAuthenticationService:
     def refresh_google_access_token(refresh_token):
         
         #리프레시 토큰을 사용해 구글 액세스 토큰 갱신
-        google_provider_cfg = PaymentAuthenticationService.get_google_provider_cfg()
+        google_provider_cfg = AuthenticationService.get_google_provider_cfg()
         token_endpoint = google_provider_cfg["token_endpoint"]
 
         payload = {
@@ -116,18 +106,18 @@ class PaymentAuthenticationService:
     @staticmethod
     def google_login():
         
-        return PaymentAuthenticationService.get_google_authorization_url()
+        return AuthenticationService.get_google_authorization_url()
 
     @staticmethod
     def google_callback(code):
         
         try:
-            tokens = PaymentAuthenticationService.get_google_tokens(code)
+            tokens = AuthenticationService.get_google_tokens(code)
             access_token = tokens["access_token"]
             refresh_token = tokens.get("refresh_token")
 
             # 리프레시 토큰을 사용해 새 액세스 토큰 발급
-            new_access_token = PaymentAuthenticationService.refresh_google_access_token(refresh_token)
+            new_access_token = AuthenticationService.refresh_google_access_token(refresh_token)
 
             return True, {"new_access_token": new_access_token, "refresh_token": refresh_token}
         except Exception as e:
