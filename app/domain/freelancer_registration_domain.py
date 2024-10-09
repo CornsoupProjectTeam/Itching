@@ -22,8 +22,8 @@ class FreelancerRegistrationDomain:
     careers: List['FreelancerCareerMapping'] = None
     sns_link: Optional[str] = None
     portfolios: List['FreelancerPortfolioMapping'] = None
-    created_at: datetime = datetime.utcnow()
-    updated_at: datetime = datetime.utcnow()
+    freelancer_registration_date: Optional[datetime] = None
+    freelancer_badge: Optional[str] = None
 
     def update_profile_picture_path(self, new_path: str):
         # 프로필 사진 경로 업데이트
@@ -112,3 +112,24 @@ class FreelancerRegistrationDomain:
                 self.portfolios.remove(portfolio)
             else:
                 print(f"오류: {portfolio.image_path} 포트폴리오 이미지를 찾을 수 없습니다.")
+    
+    def update_registration_date(self, registration_date:datetime):
+        # 프리랜서 등록일 업데이트
+        self.freelancer_registration_date = registration_date
+    
+    def is_registration_complete(self) -> bool:
+        # 필수 필드가 모두 채워져 있는지 확인
+        required_fields = [
+            self.public_profile_id,
+            self.user_id,
+            self.nickname,
+            self.freelancer_intro,
+            self.expertise_fields,
+            self.skill_codes,
+            self.educations,
+            self.careers,
+            self.portfolios
+        ]
+
+        # 필수 필드 중 하나라도 None이거나 빈 리스트인 경우 False 반환
+        return all(field is not None and (not isinstance(field, list) or field) for field in required_fields)

@@ -20,15 +20,15 @@ def before_request():
 
 # GET /profile/freelancer/{user_id}/register
 # 프리랜서 등록 정보 조회
-@freelancer_registration_bp.route('/<user_id>/register', methods=['GET'])
-def get_freelancer_registration(user_id):
-    result = g.freelancer_registration_service.get_freelancer_registration_information()
+# @freelancer_registration_bp.route('/<user_id>/register', methods=['GET'])
+# def get_freelancer_registration(user_id):
+#     result = g.freelancer_registration_service.get_freelancer_registration_information()
     
-    # 등록 정보가 있는 경우 JSON으로 반환
-    if result:
-        return jsonify({"success": True, "data": result}), 200
-    else:
-        return jsonify({"success": False, "message": "등록 정보를 찾을 수 없습니다."}), 404
+#     # 등록 정보가 있는 경우 JSON으로 반환
+#     if result:
+#         return jsonify({"success": True, "data": result}), 200
+#     else:
+#         return jsonify({"success": False, "message": "등록 정보를 찾을 수 없습니다."}), 404
 
 # POST 또는 DELETE /profile/freelancer/{user_id}/register/profile-image
 @freelancer_registration_bp.route('/<user_id>/register/profile-image', methods=['POST', 'DELETE'])
@@ -162,9 +162,9 @@ def update_portfolios(user_id):
     return jsonify(result)
 
 # GET /profile/freelancer/{user_id}/register/complete
-# 프리랜서 등록의 필수 항목이 모두 저장되었는지 확인
+# 프리랜서 등록의 필수 항목이 모두 저장되었는지 확인 후 등록
 @freelancer_registration_bp.route('/<user_id>/register/complete', methods=['GET'])
-def check_registration_complete(user_id):
+def freelancer_registration(user_id):
     result = g.freelancer_registration_service.registration_complete(user_id)
     
     return jsonify(result)

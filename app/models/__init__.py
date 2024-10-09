@@ -33,6 +33,7 @@ from app.models.pretest_scanner_requirement import PretestScannerRequirement
 from app.models.chat_room_scanner_requirement import ChatRoomScannerRequirement
 from app.models.project_info import ProjectInfo
 from app.models.project_list import ProjectList
-from app.models.client_post import ClientPost
-from app.models.client_post_list import ClientPostList
+
+from app.models.client_explore import ClientPost, ClientPostList, ClientPostReferenceImageMapping
+
 
