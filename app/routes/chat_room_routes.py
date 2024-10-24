@@ -1,7 +1,9 @@
 # app/routes/chat_room_routes.py
 from flask import Blueprint, jsonify, request, redirect, url_for
+from flask_socketio import emit, join_room, leave_room
+from app.domain.chat_room_domain import ChatRoom, Message
 from app.models.chat_room_master import ChatRoomMaster
-from app.services.chat_room_service import ChatRoomService
+from app.services.chat_room_service import ChatRoomService, ChatService
 from app.models.mongo_message import MongoMessage
 import os
 from dotenv import load_dotenv
@@ -18,6 +20,9 @@ mongo_uri = os.getenv('MONGO_URI')
 chat_room_service = ChatRoomService(mongo_uri=mongo_uri)
 
 chat_room_bp = Blueprint('chat_room_bp', __name__)
+
+chat_service = ChatService()
+
 
 # 채팅방 목록 조회 (MySQL)
 @chat_room_bp.route('/list', methods=['GET'])
@@ -118,4 +123,3 @@ def move_to_quotation(chat_room_id):
 @chat_room_bp.route('/scanner/<chat_room_id>', methods=['GET'])
 def move_to_scanner(chat_room_id):
     return redirect(url_for('scanner_bp.scan', chat_room_id=chat_room_id))
-

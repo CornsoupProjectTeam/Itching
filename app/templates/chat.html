@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Test</title>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>Chat Room</h1>
+    
+    <div id="chat">
+        <ul id="messages"></ul>
+    </div>
+
+    <input id="messageInput" placeholder="Enter message" autocomplete="off">
+    <button id="sendButton">Send</button>
+
+    <script>
+        // 서버에 연결
+        const socket = io("http://localhost:5000");
+
+        // 채팅방에 입장
+        socket.emit('join', {
+            username: "user001",
+            chat_room_id: "room001",
+            user_type: "Client"
+        });
+
+        // 서버로부터 수신한 메시지를 화면에 표시
+        socket.on('receive_message', (data) => {
+            const messageList = document.getElementById("messages");
+            const newMessage = document.createElement("li");
+            newMessage.textContent = `${data.username}: ${data.message_content}`;
+            messageList.appendChild(newMessage);
+        });
+
+        // 메시지 보내기 버튼 클릭 시 처리
+        document.getElementById("sendButton").onclick = () => {
+            const messageInput = document.getElementById("messageInput");
+            const message = messageInput.value;
+
+            // 서버로 메시지 전송
+            socket.emit('send_message', {
+                username: "user002",
+                chat_room_id: "room001",
+                message: message
+            });
+
+            messageInput.value = "";  // 메시지를 보낸 후 입력란 초기화
+        };
+    </script>
+</body>
+</html>

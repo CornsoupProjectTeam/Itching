@@ -3,6 +3,7 @@ import uuid
 from datetime import datetime
 from app import db
 from app.models.chat_room_quotation import ChatRoomQuotation
+from app.models.payment import Payment
 from sqlalchemy.exc import SQLAlchemyError
 
 class QuotationService:
@@ -161,3 +162,44 @@ class QuotationService:
             db.session.rollback()
             return {"success": False, "error": str(e)}
 
+class PaymentService:
+    @staticmethod
+    def create_payment(data: dict) -> dict:
+        try:
+            new_payment = Payment(
+                chat_room_id=data['chat_room_id'],
+                quotation_id=data['quotation_id'],
+                freelancer_user_id=data['freelancer_user_id'],
+                client_user_id=data['client_user_id'],
+                user_name=data['user_name'],
+                price_unit=data['price_unit'],
+                payment_amount=float(data['payment_amount']),
+                payment_st='Pending',
+                created_at=datetime.utcnow(),
+                updated_at=datetime.utcnow()
+            )
+
+            db.session.add(new_payment)
+            db.session.commit()
+            return {"success": True, "payment_id": new_payment.chat_room_id}
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            return {"success": False, "error": str(e)}
+
+    @staticmethod
+    def update_payment_status(chat_room_id: str, status: str) -> dict:
+        try:
+            payment = Payment.query.filter_by(chat_room_id=chat_room_id).first()
+
+            if not payment:
+                return {"success": False, "error": "Payment not found"}
+
+            payment.payment_st = status
+            payment.updated_at = datetime.utcnow()
+
+            db.session.commit()
+            return {"success": True, "payment_id": payment.chat_room_id}
+
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            return {"success": False, "error": str(e)}

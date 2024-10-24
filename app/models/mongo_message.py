@@ -1,10 +1,9 @@
-# app/models/mongo_message.py
+#. app/models/mongo_message.py
 from pymongo import MongoClient
 from datetime import datetime
-from app import db
 
 class MongoMessage:
-    def __init__(self, mongo_uri, db_name, collection_name="message_mappings"):
+    def __init__(self, mongo_uri, db_name, collection_name="Message"):
         self.client = MongoClient(mongo_uri)
         self.db = self.client[db_name]
         self.collection = self.db[collection_name]

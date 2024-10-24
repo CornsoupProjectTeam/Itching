@@ -3,8 +3,8 @@ import uuid
 from flask import Blueprint, request, jsonify
 from app import db
 from app.models.chat_room_quotation import ChatRoomQuotation
+from app.services.chat_room_quotation_service import PaymentService
 from datetime import datetime
-from sqlalchemy.exc import SQLAlchemyError
 
 # 블루프린트에 url_prefix 설정
 quotation_bp = Blueprint('quotation', __name__, url_prefix='/chatroom/quotation')
@@ -88,9 +88,6 @@ def send_quotation():
         # 저장 완료 후 JSON 응답 반환
         return jsonify({"message": "Quotation saved successfully.", "quotation_id": quotation_id}), 201
 
-    except SQLAlchemyError as e:
-        db.session.rollback()
-        return jsonify({"error": f"Database error: {str(e)}"}), 500
 
     except Exception as e:
         db.session.rollback()
@@ -149,18 +146,15 @@ def update_quotation(quotation_id):
 
         return jsonify({"message": "Quotation updated successfully.", "quotation_id": quotation_id}), 200
 
-    except SQLAlchemyError as e:
-        db.session.rollback()
-        return jsonify({"error": f"Database error: {str(e)}"}), 500
 
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
-#. 결제로 이동
+# 결제 처리 라우트 추가
 @quotation_bp.route('/proceed_to_payment/<quotation_id>', methods=['POST'])
 def proceed_to_payment(quotation_id):
-    """견적서에 대해 결제로 이동 및 결제 성공/실패 처리"""
+    """견적서에 대해 결제로 이동 및 결제 생성"""
     try:
         # 견적서 조회
         quotation = ChatRoomQuotation.query.filter_by(quotation_id=quotation_id).first()
@@ -168,11 +162,25 @@ def proceed_to_payment(quotation_id):
         if not quotation:
             return jsonify({"error": "Quotation not found"}), 404
 
-        # 결제 페이지로 리디렉션 (유진언니가 생성한 payment와 연동되어야 함)
-        payment_url = f"https://payment.example.com/pay?amount={quotation.quotation}&quotation_id={quotation_id}"
+        # 결제 데이터 생성
+        payment_data = {
+            "chat_room_id": quotation.chat_room_id,
+            "quotation_id": quotation.quotation_id,
+            "freelancer_user_id": quotation.freelancer_user_id,
+            "client_user_id": quotation.client_user_id,
+            "user_name": request.form.get('user_name'),  # 사용자 이름
+            "price_unit": request.form.get('price_unit', 'KRW'),  # 결제 통화 단위
+            "payment_amount": quotation.quotation  # 견적 금액
+        }
 
-        #. 결제 URL 반환
-        return jsonify({"message": "Proceed to payment", "payment_url": payment_url}), 200
+        result = PaymentService.create_payment(payment_data)
+
+        if result['success']:
+            # 결제 성공 시 URL 반환
+            payment_url = f"https://payment.example.com/pay?amount={quotation.quotation}&quotation_id={quotation.quotation_id}"
+            return jsonify({"message": "Proceed to payment", "payment_url": payment_url}), 200
+        else:
+            return jsonify({"error": result['error']}), 400
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -194,10 +202,6 @@ def payment_success(quotation_id):
         db.session.commit()
 
         return jsonify({"message": "Payment successful", "quotation_id": quotation_id}), 200
-
-    except SQLAlchemyError as e:
-        db.session.rollback()
-        return jsonify({"error": f"Database error: {str(e)}"}), 500
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
