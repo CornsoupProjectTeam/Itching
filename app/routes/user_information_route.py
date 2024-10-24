@@ -2,27 +2,36 @@ from flask import Blueprint, request, jsonify, g
 from app.services.user_information_service import UserInformationService
 from app.repositories.user_information_repository import UserInformationRepository
 from app.services.login_service import LoginService
-from app.repositories.login_repository import LoginRepository
 
-user_information_bp = Blueprint('user_information', __name__, url_prefix='/main/profile/user_information')
+user_information_bp = Blueprint('user_information', __name__, url_prefix='/profile/user_information')
 
 @user_information_bp.before_request
 def before_request():
     g.user_information_repository = UserInformationRepository()
     g.user_information_service = UserInformationService(g.user_information_repository, request.view_args.get('user_id'))
 
-# GET /main/profile/user_information/{user_id}
+# GET /profile/user_information/{user_id}
 @user_information_bp.route('/<user_id>', methods=['GET'])
 def get_user_information(user_id):
     # 사용자 정보 조회
     user_info = g.user_information_service.get_user_information()
 
     if user_info:
-        return jsonify({'success': True, 'data': user_info}), 200
+        return jsonify(user_info), 200
     else:
         return jsonify({'success': False, 'message': '사용자 정보를 찾을 수 없습니다.'}), 404
 
-# POST 또는 DELETE /main/profile/user_information/{user_id}/profile-picture
+# GET /profile/user_information/{user_id}/freelancer-registration-state
+@user_information_bp.route('/<user_id>/freelancer-registration-state', methods=['GET'])
+def check_freelancer_registration_state(user_id):
+    freelancer_registration_state = g.user_information_service.confirm_freelancer_registration(user_id)
+
+    if freelancer_registration_state:
+        return jsonify({'freelancer_registration_state': freelancer_registration_state}), 200
+    else:
+        return jsonify({'success': False, 'message': '프리랜서 등록여부를 확인할 수 없습니다.'}), 404
+
+# POST 또는 DELETE /profile/user_information/{user_id}/profile-picture
 @user_information_bp.route('/<user_id>/profile-picture', methods=['POST', 'DELETE'])
 def update_profile_picture(user_id):
     # 프로필 사진 등록/업데이트
@@ -53,7 +62,7 @@ def update_profile_picture(user_id):
         else:
             return jsonify(result), 400
         
-# GET /main/profile/user_information/{user_id}/nickname-check
+# GET /profile/user_information/{user_id}/nickname-check
 @user_information_bp.route('/<user_id>/nickname-check', methods=['GET'])
 def check_nickname(user_id):
     nickname = request.args.get('nickname')
@@ -68,7 +77,7 @@ def check_nickname(user_id):
     # 결과 반환
     return jsonify(result), 200 if result['success'] else 400
 
-# PUT /main/profile/user_information/{user_id}/nickname
+# PUT /profile/user_information/{user_id}/nickname
 @user_information_bp.route('/<user_id>/nickname', methods=['PUT'])
 def update_nickname(user_id):
     data = request.json
@@ -84,7 +93,7 @@ def update_nickname(user_id):
     # 결과 반환
     return jsonify(result), 200 if result['success'] else 400
 
-# PUT /main/profile/user_information/{user_id}/business-area
+# PUT /profile/user_information/{user_id}/business-area
 @user_information_bp.route('/<user_id>/business-area', methods=['PUT'])
 def update_business_area(user_id):
     data = request.json
@@ -100,35 +109,35 @@ def update_business_area(user_id):
     # 결과 반환
     return jsonify(result), 200 if result['success'] else 400
 
-# PUT /main/profile/user_information/{user_id}/preferred-fields
+# PUT /profile/user_information/{user_id}/preferred-fields
 @user_information_bp.route('/<user_id>/preferred-fields', methods=['PUT'])
 def update_preferred_fields(user_id):
     data = request.json
-    preferred_codes = data.get('preferred_codes', [])
+    field_codes = data.get('field_codes', [])
 
-    if not preferred_codes:
+    if not field_codes:
         return jsonify({"success": False, "message": "선호 분야 코드를 입력해주세요."}), 400
 
     # 선호 분야 수정 처리
-    result = g.user_information_service.change_preferred_field(preferred_codes)
+    result = g.user_information_service.change_preferred_field(field_codes)
     
     return jsonify(result), 200 if result['success'] else 400
 
-# DELETE /main/profile/user_information/{user_id}/preferred-fields
+# DELETE /profile/user_information/{user_id}/preferred-fields
 @user_information_bp.route('/<user_id>/preferred-fields', methods=['DELETE'])
 def delete_preferred_fields(user_id):
     data = request.json
-    preferred_codes = data.get('preferred_codes', [])
+    field_codes = data.get('field_codes', [])
 
-    if not preferred_codes:
+    if not field_codes:
         return jsonify({"success": False, "message": "삭제할 선호 분야 코드를 입력해주세요."}), 400
 
     # 선호 분야 삭제 처리
-    result = g.user_information_service.delete_preferred_field(preferred_codes)
+    result = g.user_information_service.delete_preferred_field(field_codes)
     
     return jsonify(result), 200 if result['success'] else 400
 
-# PUT /main/profile/user_information/{user_id}/preferred-freelancer
+# PUT /profile/user_information/{user_id}/preferred-freelancer
 @user_information_bp.route('/<user_id>/preferred-freelancer', methods=['PUT'])
 def update_preferred_freelancer(user_id):
     data = request.json
@@ -142,7 +151,7 @@ def update_preferred_freelancer(user_id):
     
     return jsonify(result), 200 if result['success'] else 400
 
-# DELETE /main/profile/user_information/{user_id}/preferred-freelancer
+# DELETE /profile/user_information/{user_id}/preferred-freelancer
 @user_information_bp.route('/<user_id>/preferred-freelancer', methods=['DELETE'])
 def delete_preferred_freelancer(user_id):
     data = request.json
@@ -156,7 +165,7 @@ def delete_preferred_freelancer(user_id):
     
     return jsonify(result), 200 if result['success'] else 400
 
-# PUT /main/profile/user_information/{user_id}/change-password
+# PUT /profile/user_information/{user_id}/change-password
 @user_information_bp.route('/<user_id>/change-password', methods=['PUT'])
 def change_password(user_id):
     data = request.json
@@ -168,12 +177,31 @@ def change_password(user_id):
     if not current_password or not new_password or not confirm_new_password:
         return jsonify({'success': False, 'message': '모든 비밀번호 필드를 입력해주세요.'}), 400
 
-    # LoginRepository와 LoginService 객체 생성
-    login_repository = LoginRepository()
-    login_service = LoginService(login_repository)
+    # LoginService 객체 생성
+    login_service = LoginService()
 
     # 비밀번호 변경 처리
     result = login_service.change_password(user_id, current_password, new_password, confirm_new_password)
 
     # 결과 반환
     return jsonify(result), 200 if result['success'] else 400
+
+# GET /profile/user_information/{user_id}/check-inquiry-state
+@user_information_bp.route('/<user_id>/check-inquiry-state', methods=['GET'])
+def check_inquiry_state(user_id):
+    inquiry_state = g.user_information_service.confirm_inquiry_state(user_id)
+
+    if inquiry_state is not None:
+        return jsonify({'inquiry_state': inquiry_state}), 200
+    else:
+        return jsonify({'success': False, 'message': '문의 상태를 확인할 수 없습니다.'}), 404
+    
+# GET /profile/user_information/{user_id}/check-pretest-state
+@user_information_bp.route('/<user_id>/check-pretest-state', methods=['GET'])
+def check_pretest_state(user_id):
+    pretest_state = g.user_information_service.confirm_pretest_state(user_id)
+
+    if pretest_state is not None:
+        return jsonify({'pretest_state': pretest_state}), 200
+    else:
+        return jsonify({'success': False, 'message': 'pretest 시행 여부를 확인할 수 없습니다.'}), 404
